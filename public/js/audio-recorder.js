@@ -24,6 +24,7 @@
     let recorder = null;
     let stream = null;
     let chunks = [];
+    let recordingGeneration = 0;
     let audioContext = null;
     let analyser = null;
     let sourceNode = null;
@@ -208,6 +209,10 @@
                 return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime);
             });
             recorder = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream);
+            const activeRecorder = recorder;
+            const activeMimeType = activeRecorder.mimeType || mimeType || 'audio/webm';
+            const sessionId = ++recordingGeneration;
+            const recordingChunks = [];
             chunks = [];
             elapsedBeforeCurrentRun = 0;
             recordingStartedAt = performance.now();
@@ -226,22 +231,24 @@
             const chunkWrites = [];
             recorder.addEventListener('dataavailable', function (event) {
                 if (event.data && event.data.size > 0) {
+                    recordingChunks.push(event.data);
                     chunks.push(event.data);
                     if (window.ZayanComposer && window.ZayanComposer.saveAudioChunk) {
-                        chunkWrites.push(window.ZayanComposer.saveAudioChunk(event.data, recorder.mimeType || mimeType));
+                        chunkWrites.push(window.ZayanComposer.saveAudioChunk(event.data, activeMimeType));
                     }
                 }
                 if (window.ZayanComposer && window.ZayanComposer.saveAudioProgress) {
-                    window.ZayanComposer.saveAudioProgress(currentElapsed(), recorder.mimeType || mimeType).catch(function () {});
+                    window.ZayanComposer.saveAudioProgress(currentElapsed(), activeMimeType).catch(function () {});
                 }
             });
-            recorder.addEventListener('stop', async function () {
+            activeRecorder.addEventListener('stop', async function () {
                 await Promise.allSettled(chunkWrites);
+                if (sessionId !== recordingGeneration) return;
                 cancelAnimationFrame(animation);
                 if (levelMeter) levelMeter.value = 0;
                 clearInterval(timer);
                 durationMs = Math.max(0, elapsedBeforeCurrentRun);
-                const blob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'audio/webm' });
+                const blob = new Blob(recordingChunks, { type: activeMimeType });
                 if (!blob.size) {
                     setError('التسجيل فارغ. حاول مرة أخرى.');
                     resetRecorder(false);
@@ -270,14 +277,14 @@
             });
             stream.getAudioTracks().forEach(function (track) {
                 track.addEventListener('ended', function () {
-                    if (!recorder || recorder.state === 'inactive') return;
-                    if (recorder.state === 'recording') elapsedBeforeCurrentRun += performance.now() - recordingStartedAt;
+                    if (sessionId !== recordingGeneration || activeRecorder.state === 'inactive') return;
+                    if (activeRecorder.state === 'recording') elapsedBeforeCurrentRun += performance.now() - recordingStartedAt;
                     clearInterval(timer);
                     setError('انقطع اتصال الميكروفون. احتفظنا بالجزء المسجل؛ افحص الجهاز ثم أكمل.');
-                    recorder.stop();
+                    activeRecorder.stop();
                 }, { once: true });
             });
-            recorder.start(1000);
+            activeRecorder.start(1000);
             timer = window.setInterval(updateClock, 200);
             setRecordingUi('recording');
         } catch (error) {
@@ -334,6 +341,7 @@
     }
 
     function resetRecorder(removeFromDraft) {
+        recordingGeneration += 1;
         cancelAnimationFrame(animation);
         clearInterval(timer);
         if (recorder && recorder.state !== 'inactive') {
