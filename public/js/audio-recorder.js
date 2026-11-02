@@ -239,7 +239,11 @@
             }
 
             const chunkWrites = [];
-            recorder.addEventListener('dataavailable', function (event) {
+            activeRecorder.addEventListener('dataavailable', function (event) {
+                // A reset/delete can invalidate this recorder before its queued
+                // final dataavailable event runs. Never persist stale chunks into
+                // the next draft audio session.
+                if (sessionId !== recordingGeneration) return;
                 if (event.data && event.data.size > 0) {
                     recordingChunks.push(event.data);
                     chunks.push(event.data);
