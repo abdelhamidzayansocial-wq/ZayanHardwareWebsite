@@ -1,10 +1,12 @@
-## 2026-11-02 — Audio Stage 2 implementation on feature/post-audio-real-trimming
+## 2026-11-02 — Audio Stage 2 implementation and verification on feature/post-audio-real-trimming
 
-- Added migration 020 and matching fresh-install columns to retain the original audio path, MIME type and size separately from the playable rendered WAV.
-- Added browser-side decoding and real trimming to mono 16 kHz PCM16 WAV, plus an explicit trim-confirmation action and microphone selection.
-- Draft media stores the original in storage_path and the rendered WAV in rendered_path. Publishing promotes both into private issue storage; issues.audio_path points to the trimmed WAV and audio_original_path retains the original without a public delivery route.
-- Added strict server-side WAV validation and publish-time verification that the uploaded WAV matches the confirmed trim range.
-- Status: implementation committed to feature/post-audio-real-trimming; PHP/JS syntax, browser behavior, DB migration, draft recovery and publish round-trip tests are still pending. No local Kali test, GitHub Actions, PR, merge, deployment, or live database operation has been performed.
+- Migration 020 and matching fresh-install schema retain original audio path/MIME/size separately from the rendered WAV. The owner's disposable `zayan_fresh_install_test` schema inspection confirmed the expected `issues.audio_*` and `post_draft_media.rendered_*` columns.
+- Browser source now decodes and trims to mono 16 kHz PCM16 WAV, requires explicit confirmation, supports microphone selection, live waveform and an accessible input-level meter. Restored drafts select the rendered preview when one exists; stale recording chunks are cleared after server audio is confirmed.
+- Draft media stores the source in `storage_path` and rendered WAV in `rendered_path`. Publishing promotes both into private issue storage; `issues.audio_path` points to the WAV and `audio_original_path` retains the source. The authenticated issue audio route serves the rendered path only.
+- Server WAV validation covers RIFF boundaries, chunk uniqueness/padding, PCM16 mono, 16 kHz, duration and size. Publish-time validation compares trim metadata to the inspected rendered WAV.
+- Owner-reported tests passed on the isolated database: WAV policy test; audio publish integration (original/rendered separation, metadata and rollback restoration); atomic content-write integration; draft publish integration; and draft media recovery integration. The audio publish test was run after commit `4f510cf9e1b0b1474f6da7eb414e8ff32e83a013`. Schema was inspected, not migrated on any existing database.
+- Remaining: run PHP/JS syntax checks on the latest branch head, then browser tests for record/pause/resume/device loss, IndexedDB crash recovery, trim/re-trim preview, upload retry and full publish. Draft conflict/pending-delete paths still need focused audio-specific runtime coverage.
+- No Actions, PR, merge, deployment or live-database change.
 
 ## 2026-11-02 — Line-level formatting state in the post composer
 
