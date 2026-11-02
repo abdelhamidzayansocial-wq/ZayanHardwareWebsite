@@ -1301,8 +1301,9 @@
             item.dirtyEditor = true;
             item.needsRender = false;
             item.editor_state = {
-                version: 1,
+                version: 2,
                 kind: 'audio-trim',
+                source_duration_basis: 'decoded-audio',
                 trim_start_ms: Math.round(trimStartMs),
                 trim_end_ms: Math.round(trimEndMs),
                 source_duration_ms: Math.round(sourceDurationMs)
