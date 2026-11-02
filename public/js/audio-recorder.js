@@ -122,10 +122,10 @@
     }
 
     async function makeWaveform(blob) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return currentWaveform;
+        const temp = new AudioContextClass();
         try {
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextClass) return currentWaveform;
-            const temp = new AudioContextClass();
             const buffer = await temp.decodeAudioData(await blob.arrayBuffer());
             const data = buffer.getChannelData(0);
             const bars = 64;
@@ -138,10 +138,11 @@
                 }
                 values.push(Math.max(0.08, max));
             }
-            await temp.close();
             return values;
         } catch (_) {
             return currentWaveform.length ? currentWaveform : [];
+        } finally {
+            if (temp.state !== 'closed') await temp.close().catch(function () {});
         }
     }
 
