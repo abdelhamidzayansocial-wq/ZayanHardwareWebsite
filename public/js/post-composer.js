@@ -1115,7 +1115,10 @@
     }
 
     async function recoverPendingAudio(server) {
-        if (server && (server.media || []).some(function (item) { return item.media_kind === 'audio'; })) return;
+        if (server && (server.media || []).some(function (item) { return item.media_kind === 'audio'; })) {
+            await clearAudioSession();
+            return;
+        }
         const pending = await pendingAudioSession().catch(function () { return null; });
         if (!pending || !pending.blob || !pending.blob.size) return;
         const audioRadio = modeRadios.find(function (item) { return item.value === 'audio'; });
