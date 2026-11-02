@@ -1,7 +1,7 @@
 # Zayan Hardware — Project Plan
 
 > Single source of truth for project status, active work, backlog, bugs, decisions, verification, and next priority. Updated: 2026-11-02.
-> Canonical repository: `zayanfordesign/ZayanHardwareWebsite`; default branch: `main`. Current work is isolated on `chore/repository-db-name-consolidation`.
+> Canonical repository: `zayanfordesign/ZayanHardwareWebsite`; default branch: `main`. Latest merged change: PR #49 (`5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`). Documentation follow-up is isolated on `docs/record-pr49-merge-and-branch-audit`.
 
 ## 1. Project Overview
 
@@ -23,10 +23,9 @@
 
 ## 3. Current Project Status
 
-- GitHub `main` at task start: `0d9a2f15645055d958adf583de284c97634d1eb7`.
-- Current work branch: `chore/repository-db-name-consolidation`, created from that `main` head.
-- Source updates on this branch set the DB default and sample environment to `zayanhardware_db`, align fresh-install and backup/restore examples, and correct the canonical repository reference in `AI_CONTEXT.md`.
-- This branch is not merged or deployed.
+- GitHub `main` after PR #49: `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
+- PR #49 (`chore/repository-db-name-consolidation`) was squash-merged on 2026-11-02. It sets the DB default and sample environment to `zayanhardware_db`, aligns fresh-install and backup/restore examples, corrects the canonical repository reference, and adds this plan.
+- Merge is source-control completion only; local `.env`, actual DB existence/connectivity, and local workspace state remain unverified.
 - Owner's local checkout and folders under `/opt/lampp/htdocs/` are not accessible through the current GitHub connection. Local workspace inventory, data reconciliation, and archive/removal remain unverified and unperformed.
 - No live database was queried or changed. No tests or GitHub Actions were run for this consolidation.
 
@@ -35,12 +34,12 @@
 ### CONS-DB-001 — Canonicalize database name in tracked configuration
 - **Description:** Use `zayanhardware_db` as the only active default in application DB configuration and the sample environment; align setup/backup documentation.
 - **Priority:** P1
-- **State:** IN REVIEW
-- **Acceptance Criteria:** `config/database.php` fallback is `zayanhardware_db`; `.env.example` uses the same value; fresh-install and backup/restore examples use the same name; no secret is committed; review remaining active DB connection/config references before merge.
+- **State:** COMPLETED (source changes merged; runtime unverified)
+- **Acceptance Criteria:** `config/database.php` fallback is `zayanhardware_db`; `.env.example` uses the same value; fresh-install and backup/restore examples use the same name; no secret is committed. Local runtime/database confirmation remains separately tracked.
 - **Dependencies:** Owner confirmation of canonical repository and DB name (confirmed 2026-11-02).
 - **Affected Files:** `config/database.php`, `.env.example`, `database/FRESH_INSTALL.md`, `docs/DATABASE_BACKUP_RESTORE.md`.
-- **Test Results:** Not run. Source changes only; exact runtime DB existence/configuration is not verified.
-- **Commit/PR:** Branch `chore/repository-db-name-consolidation`; commits recorded in GitHub history; PR #49 opened as draft: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49.
+- **Test Results:** No PHP lint, automated tests, database integration tests, local runtime checks, or Actions were run. Static review confirmed the updated defaults and setup docs; a disposable CI DB name `zayan_fresh_install_test` remains intentionally separate. Actual local DB existence/configuration is not verified.
+- **Commit/PR:** PR #49 merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49.
 - **Implementation Notes:** Existing local `.env` is intentionally not modified by a GitHub source change. Do not rename/create/migrate a live DB as part of this task.
 
 ### CONS-LOCAL-001 — Reconcile local workspaces into the official checkout
@@ -139,10 +138,9 @@
 - Repository: https://github.com/zayanfordesign/ZayanHardwareWebsite
 - Main baseline: `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Working branch: `chore/repository-db-name-consolidation`
-- Previous audio feature PR #48 remains separate and must not be mixed into this consolidation.
-- PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 (open, draft).
-- Merge status: not merged; latest GitHub check reports mergeable=true.
+- PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 — merged as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
+- PR #48 (audio recording/trimming) remains separate; not merged because browser/device acceptance, draft conflict/pending-delete recovery, and full code review are still outstanding. After PR #49 moved `main`, GitHub reports PR #48 mergeability needs refresh.
 
 ## 12. Next Priority
 
-Complete CONS-DB-002: audit every tracked active database connection/configuration reference, then review the full branch diff and open a focused PR. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
+Complete CONS-DB-002: finish the full tracked-tree/local DB-name audit. Then complete PR #48's audio acceptance and remaining branch review. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
