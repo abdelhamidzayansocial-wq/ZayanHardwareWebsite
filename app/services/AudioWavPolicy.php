@@ -44,12 +44,14 @@ final class AudioWavPolicy
                 $chunkId = substr($chunkHeader, 0, 4);
                 $chunkSize = unpack('Vsize', substr($chunkHeader, 4, 4))['size'] ?? 0;
                 $chunkStart = $position + 8;
-                if ($chunkSize < 0 || $chunkStart + $chunkSize > $size) {
+                $chunkEnd = $chunkStart + $chunkSize;
+                $paddedEnd = $chunkEnd + ($chunkSize % 2);
+                if ($chunkEnd > $size || $paddedEnd > $size) {
                     throw new \DomainException('audio_wav_invalid');
                 }
 
                 if ($chunkId === 'fmt ') {
-                    if ($chunkSize < 16 || fseek($handle, $chunkStart) !== 0) {
+                    if ($format !== null || $chunkSize < 16 || fseek($handle, $chunkStart) !== 0) {
                         throw new \DomainException('audio_wav_invalid');
                     }
                     $fmt = fread($handle, 16);
@@ -57,13 +59,15 @@ final class AudioWavPolicy
                     $values = unpack('vformat/vchannels/Vsample_rate/Vbyte_rate/vblock_align/vbits', $fmt);
                     $format = $values;
                 } elseif ($chunkId === 'data') {
+                    if ($dataSize !== null) throw new \DomainException('audio_wav_invalid');
                     $dataSize = $chunkSize;
                 }
 
-                $position = $chunkStart + $chunkSize + ($chunkSize % 2);
+                $position = $paddedEnd;
             }
 
-            if (!is_array($format) || $dataSize === null
+            // Reject incomplete chunk headers, missing padding, and trailing bytes.
+            if ($position !== $size || !is_array($format) || $dataSize === null
                 || (int) $format['format'] !== 1
                 || (int) $format['channels'] !== 1
                 || (int) $format['sample_rate'] !== 16000
