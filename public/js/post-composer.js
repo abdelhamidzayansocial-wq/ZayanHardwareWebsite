@@ -506,7 +506,7 @@
         markDirty();
     }
 
-    async function removeMedia(item) {
+    async function removeMedia(item, suppressAudioRemovedEvent) {
         // Queue the deletion with the next draft save. This keeps all revision
         // mutations in one serialized sync pipeline and remains safe offline.
         if (item.media_uuid) pendingDeletes.add(item.media_uuid);
@@ -519,7 +519,9 @@
         if (item.local_id) await dbDelete('media', draftId + ':' + item.local_id).catch(function () {});
         if (item.media_kind === 'audio') {
             audioMeta = null;
-            window.dispatchEvent(new CustomEvent('zayan-audio-removed'));
+            if (!suppressAudioRemovedEvent) {
+                window.dispatchEvent(new CustomEvent('zayan-audio-removed'));
+            }
         }
         renderMedia();
         markDirty();
@@ -1262,7 +1264,7 @@
                 return typeof isCurrentSession !== 'function' || isCurrentSession();
             };
             const existing = media.find(function (item) { return item.media_kind === 'audio'; });
-            if (existing) await removeMedia(existing);
+            if (existing) await removeMedia(existing, true);
             if (!isCurrent()) return null;
             const item = {
                 local_id: uuid(),
