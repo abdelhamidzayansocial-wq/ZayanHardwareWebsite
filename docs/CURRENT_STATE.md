@@ -4,6 +4,7 @@
 - Working branch: `chore/repository-db-name-consolidation`, created from `main` baseline `0d9a2f15645055d958adf583de284c97634d1eb7`.
 - The branch sets `config/database.php`'s default DB name and `.env.example` to `zayanhardware_db`, and aligns fresh-install and backup/restore examples. `AI_CONTEXT.md` now names the canonical repository. `PLAN.md` is established as the project task source of truth.
 - Not verified: full-tree active DB-name audit, local `.env`, actual database existence/schema, local folder inventory, private media, backups, or local checkout divergence.
+- Draft PR #49 is open: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49; GitHub currently reports mergeable=false. No merge was attempted.
 - No local directories were moved/deleted; no DB was created/renamed/migrated/written; no tests or Actions were run. This work is on an unmerged feature branch and is not deployed.
 
 ## 2026-11-02 — Line-level formatting state in the post composer
