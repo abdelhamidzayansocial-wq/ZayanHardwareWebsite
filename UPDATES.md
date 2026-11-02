@@ -1,12 +1,12 @@
-## 2026-11-02 — Audio Stage 2: actual WAV trimming and private original preservation
+## 2026-11-02 — Audio Stage 2: WAV trimming, recovery and private original preservation
 
-- Added `database/migrations/020_audio_original_and_rendered_files.sql` and matching columns to `database/fresh_install.sql`. Fresh installs must not run migration 020 afterward; databases already at 019 may apply it once after schema verification.
-- The recorder now exports the selected time range as mono 16 kHz PCM16 WAV and requires explicit confirmation before publishing. Microphone selection is available when the browser exposes multiple inputs.
-- The existing draft upload/rendered-media pipeline stores the source recording and trimmed WAV separately. The original remains private; the published audio route serves only the trimmed WAV.
-- Server validation checks RIFF/WAVE structure, PCM16 mono format, 16 kHz sample rate, duration and size. Publishing verifies the trim state against the actual rendered WAV before promoting both files into private issue storage.
-- Updated migration, composer and project-plan documentation. No new draft store or route was introduced.
-- Verification: source-level implementation only. PHP/JS syntax, WAV tests, browser recording, offline recovery, database application and end-to-end publishing remain unverified. No GitHub Actions were triggered. No PR was opened, merged or deployed.
-- Status: implementation in progress on `feature/post-audio-real-trimming`.
+- Added migration 020 and matching fresh-install columns for separate original and rendered audio metadata. Fresh installs use `database/fresh_install.sql` only; databases already at 019 require schema inspection before applying migration 020 once.
+- Browser trimming decodes the original recording and exports the selected range as mono 16 kHz PCM16 WAV. Publishing requires explicit trim confirmation; microphone selection, live waveform and an accessible input-level meter are available.
+- Original recording and rendered WAV use separate private draft files. Publishing promotes both to private issue storage; `issues.audio_path` points to the rendered WAV and `audio_original_path` retains the source. The authenticated issue audio route serves only `audio_path`.
+- Server validation checks RIFF boundaries, chunk uniqueness/padding, PCM16 mono format, 16 kHz sample rate, duration and file size. Publish-time checks compare the saved trim state with the actual rendered WAV duration.
+- Improved recovery so a restored draft previews the actual rendered audio when present and stale IndexedDB recording chunks are cleared after the server confirms an audio media row.
+- Owner-run verification: `php -l app/services/AudioWavPolicy.php`, `php -l tests/php/audio-wav-policy.php`, and `php tests/php/audio-wav-policy.php` passed after commit `ad5fb4bcf35e3c6856c3e9282914b427776162cb`. The owner also reported passing `draft-audio-publish-integration.php` after commit `4f510cf9e1b0b1474f6da7eb414e8ff32e83a013`, plus `content-write-integration.php`, `draft-publish-integration.php`, and `draft-media-recovery-integration.php` on the disposable `zayan_fresh_install_test` database. The schema inspection confirmed the expected audio columns. The later browser/UI refinements have not yet had JS syntax or browser runtime checks.
+- No GitHub Actions were triggered. No PR was opened, merged or deployed; no live database was changed.
 
 ## 2026-11-02 — Line-level formatting state in the post composer
 
