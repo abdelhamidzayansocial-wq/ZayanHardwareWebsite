@@ -177,4 +177,5 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
+- Database handoff evidence: owner supplied a partial SQL dump excerpt confirming populated `users`, `user_device_specializations`, `post_drafts`, `post_draft_media`, `issues` indexes/constraints, and retention-related triggers. Owner clarified the shown accounts are test accounts. The excerpt does not include the `CREATE TABLE issues` column list or `app_migration_ledger` rows, so it cannot establish whether migration 020 is already applied; do not infer schema state from indexes alone.
 Continue audio acceptance on a disposable test database first, then inspect and back up the requested final target `zayan_hardware_clean_20261031` read-only. Only after passing database and browser/device tests, reviewing the audio-only diff, and confirming the target schema should the approved migration/integration be applied to that database.
