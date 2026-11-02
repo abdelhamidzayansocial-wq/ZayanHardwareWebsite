@@ -1,3 +1,11 @@
+## 2026-11-02 — PR #49 merged: canonical DB defaults and project plan
+
+- PR #49 merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
+- The tracked application fallback, `.env.example`, fresh-install instructions, and backup/restore example now use `zayanhardware_db`; `AI_CONTEXT.md` identifies `zayanfordesign/ZayanHardwareWebsite` as canonical. `PLAN.md` with all 12 required sections is now on `main`.
+- Static source review found the workflow's `zayan_fresh_install_test` is a disposable CI database name, not the application default. Historical backup naming and schema fingerprint strings remain unchanged intentionally.
+- No local `.env`, database, files, or private media were accessed. No PHP/tests/Actions/local runtime checks were run. Actual local DB identity/connectivity and complete source-wide audit remain unverified.
+- PR #48 remains unmerged: browser/device audio acceptance, draft conflict/pending-delete recovery, and full changed-file review are outstanding.
+
 ## 2026-11-02 — Repository and database-name consolidation
 
 - Owner confirmed the canonical GitHub repository is `zayanfordesign/ZayanHardwareWebsite`; the official local project folder is `/opt/lampp/htdocs/zayan_hardware`.
