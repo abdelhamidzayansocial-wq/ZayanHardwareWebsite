@@ -46,10 +46,12 @@
 
 ## Database application notes
 
-- New empty database: run database/fresh_install.sql once. It already includes migration 020's audio columns; do not run migration 020 afterward.
-- Database already at migration 019: inspect the actual schema, then run database/migrations/020_audio_original_and_rendered_files.sql once.
-- Never replay migrations 000–019 over the consolidated fresh-install schema.
-- No live/hosted database has been accessed or modified by this feature branch.
+- **Owner's requested final target:** local phpMyAdmin database `zayan_hardware_clean_20261031` (`http://localhost/phpmyadmin/`). This is the intended final integration target, not permission to alter it during development.
+- Treat this as an existing database that may contain data. First perform read-only inspection of its tables, `issues` audio columns, `app_migration_ledger`, and current migration/schema version; establish a verified backup before any write or DDL.
+- If it is a genuinely empty new database, run `database/fresh_install.sql` once. It already includes migration 020's audio columns; do not run migration 020 afterward.
+- If it is an existing installation at schema 019, inspect the exact schema and backup, then apply `database/migrations/020_audio_original_and_rendered_files.sql` once. Do not infer migration state from the database name.
+- Never replay migrations 000–019 over the consolidated fresh-install schema. Do not execute DDL or mutate `zayan_hardware_clean_20261031` until the owner approves after inspection/backup and all application acceptance gates pass.
+- No local/hosted database has been accessed or modified by this feature branch.
 
 ## Deferred work
 
@@ -175,4 +177,4 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
-Complete the remaining audio acceptance gates: run draft publishing integration against `zayan_fresh_install_test`, then browser/device acceptance for recording, pause/resume, microphone loss, real trim/re-trim, draft recovery, upload retry, and publish. Do not merge or deploy until these checks pass and the audio-only diff is isolated from unrelated changes.
+Continue audio acceptance on a disposable test database first, then inspect and back up the requested final target `zayan_hardware_clean_20261031` read-only. Only after passing database and browser/device tests, reviewing the audio-only diff, and confirming the target schema should the approved migration/integration be applied to that database.
