@@ -178,7 +178,6 @@ final class PostDraft extends Model
                 return null;
             }
             if ($kind === 'audio' && ($mimeType !== 'audio/wav' || $durationMs === null || $durationMs < 100)) {
-                self::rollbackRevisionMutation();
                 throw new \DomainException('audio_wav_format_invalid');
             }
             $pdo->prepare(
