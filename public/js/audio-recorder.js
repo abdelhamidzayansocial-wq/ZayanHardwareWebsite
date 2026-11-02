@@ -144,6 +144,18 @@
         }
     }
 
+    async function readDecodedDurationMs(blob) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return 0;
+        const decoder = new AudioContextClass();
+        try {
+            const decoded = await decoder.decodeAudioData(await blob.arrayBuffer());
+            return Math.max(0, Math.round(decoded.duration * 1000));
+        } finally {
+            await decoder.close().catch(function () {});
+        }
+    }
+
     async function refreshMicrophones() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !deviceSelect) return;
         try {
@@ -235,6 +247,7 @@
                     resetRecorder(false);
                     return;
                 }
+                try { durationMs = await readDecodedDurationMs(blob) || durationMs; } catch (_) {}
                 currentWaveform = await makeWaveform(blob);
                 drawBars(currentWaveform);
                 currentTrimStart = 0;
@@ -376,15 +389,19 @@
         if (previewIsTrimmed) statusLabel.textContent = 'تم اعتماد نسخة WAV المقصوصة';
     }
 
-    async function createTrimmedWav(sourceBlob, startMs, endMs) {
+    async function createTrimmedWav(sourceBlob, startMs, endMs, recordedDurationMs) {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) throw new Error('المتصفح لا يدعم معالجة الصوت المطلوبة.');
         const decoder = new AudioContextClass();
         try {
             const decoded = await decoder.decodeAudioData(await sourceBlob.arrayBuffer());
             const sampleRate = 16000;
-            const startFrame = Math.max(0, Math.floor(startMs / 1000 * decoded.sampleRate));
-            const endFrame = Math.min(decoded.length, Math.ceil(endMs / 1000 * decoded.sampleRate));
+            const decodedDurationMs = Math.max(1, Math.round(decoded.duration * 1000));
+            const scale = decodedDurationMs / Math.max(1, recordedDurationMs || decodedDurationMs);
+            const actualStartMs = Math.max(0, Math.min(decodedDurationMs, startMs * scale));
+            const actualEndMs = Math.max(actualStartMs, Math.min(decodedDurationMs, endMs * scale));
+            const startFrame = Math.max(0, Math.floor(actualStartMs / 1000 * decoded.sampleRate));
+            const endFrame = Math.min(decoded.length, Math.ceil(actualEndMs / 1000 * decoded.sampleRate));
             if (endFrame <= startFrame) throw new Error('حدد جزءًا صالحًا من التسجيل.');
             const outputLength = Math.floor((endFrame - startFrame) * sampleRate / decoded.sampleRate);
             if (outputLength < 1600) throw new Error('مدة التسجيل بعد القص قصيرة جدًا.');
@@ -426,7 +443,12 @@
                 sample = Math.max(-1, Math.min(1, sample));
                 view.setInt16(44 + i * 2, sample < 0 ? sample * 32768 : sample * 32767, true);
             }
-            return new Blob([output], { type: 'audio/wav' });
+            return {
+                blob: new Blob([output], { type: 'audio/wav' }),
+                sourceDurationMs: decodedDurationMs,
+                trimStartMs: Math.round(actualStartMs),
+                trimEndMs: Math.round(actualEndMs)
+            };
         } finally {
             await decoder.close().catch(function () {});
         }
@@ -447,12 +469,15 @@
                 if (!response.ok) throw new Error('تعذر تحميل التسجيل الأصلي للقص.');
                 original = await response.blob();
             }
-            const wav = await createTrimmedWav(original, currentTrimStart, currentTrimEnd);
-            setPreview(wav);
+            const rendered = await createTrimmedWav(original, currentTrimStart, currentTrimEnd, durationMs);
+            durationMs = rendered.sourceDurationMs;
+            currentTrimStart = rendered.trimStartMs;
+            currentTrimEnd = rendered.trimEndMs;
+            setPreview(rendered.blob);
             previewIsTrimmed = true;
             preview.currentTime = 0;
             preview.load();
-            await window.ZayanComposer.setAudioRenderedBlob(wav, currentTrimStart, currentTrimEnd, durationMs);
+            await window.ZayanComposer.setAudioRenderedBlob(rendered.blob, currentTrimStart, currentTrimEnd, durationMs);
             statusLabel.textContent = 'تم إنشاء نسخة WAV مقصوصة فعليًا';
         } catch (error) {
             setError(error.message || 'تعذر إنشاء النسخة المقصوصة.');
