@@ -60,7 +60,7 @@ Audio player display, Image Editor V2, and PWA integration are intentionally out
 ### AUD-REV-001 — Bound rendered-WAV duration mismatch
 - **Description:** Publish-time validation currently accepts an absolute difference of up to 1500 ms between the confirmed trim span and the inspected rendered WAV duration. The browser records source duration using elapsed wall-clock time, while the trimmer derives output duration from decoded audio frames. The current integration fixture covers only an exact 1500 ms match and does not exercise a mismatched-duration rejection.
 - **Priority:** HIGH
-- **State:** PENDING
+- **State:** IN PROGRESS
 - **Acceptance Criteria:**
   - Establish the real duration delta across supported MediaRecorder MIME types and browser decode behavior.
   - Use a narrowly bounded, documented tolerance or derive trim metadata from decoded source duration.
@@ -68,7 +68,7 @@ Audio player display, Image Editor V2, and PWA integration are intentionally out
   - Preserve rollback restoration and original/rendered file separation.
 - **Dependencies:** Browser/runtime verification on supported browsers; disposable database integration environment.
 - **Affected Files:** `app/services/DraftPublishingService.php`, `public/js/audio-recorder.js`, `public/js/post-composer.js`, `tests/php/draft-audio-publish-integration.php`.
-- **Test Results:** Source review only. No project PHP/JavaScript/database tests were run in this session. A clean clone attempt failed with exit code 128 because this execution environment could not resolve github.com.
-- **Commit/PR:** None; implementation intentionally not changed pending evidence for a safe tolerance.
-- **Implementation Notes:** The current 1500 ms threshold is materially wider than sample-frame rounding alone, but the source duration originates from MediaRecorder elapsed time, so tightening it without browser measurements could reject valid recordings. Treat this as a tracked correctness gap, not a confirmed production failure.
+- **Test Results:** Regression cases authored for exact match, the 5 ms decoded-duration boundary, and a material 500 ms mismatch with rollback restoration. Tests have NOT been executed. PHP/JavaScript syntax and browser/device tests remain pending because this session cannot access the project runtime; a clean clone attempt failed with exit code 128 (DNS/network resolution for github.com).
+- **Commit/PR:** Implementation commits: `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`. No PR created; verification is still required.
+- **Implementation Notes:** New trims derive source duration from decoded audio and normalize old draft trim positions against the decoded duration before rendering. Editor-state version 2 declares `decoded-audio`; publish-time tolerance is 5 ms for this version. Legacy version-1 drafts retain the previous 1500 ms tolerance for backward compatibility. This is source-level implementation only until runtime tests pass.
 
