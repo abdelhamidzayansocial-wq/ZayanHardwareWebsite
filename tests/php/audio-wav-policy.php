@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use App\Services\AudioWavPolicy;
+
 require dirname(__DIR__, 2) . '/app/services/AudioWavPolicy.php';
 
 
@@ -23,7 +25,7 @@ function expectRejected(string $bytes, string $label): void
     if ($path === false) throw new RuntimeException('Unable to create test file.');
     file_put_contents($path, $bytes);
     try {
-        \\App\\Services\\\\App\\Services\\AudioWavPolicy::inspect($path);
+        AudioWavPolicy::inspect($path);
         throw new RuntimeException('Expected WAV rejection: ' . $label);
     } catch (DomainException) {
         // Expected validation failure.
@@ -36,7 +38,7 @@ $path = tempnam(sys_get_temp_dir(), 'zayan-audio-valid-');
 if ($path === false) throw new RuntimeException('Unable to create test file.');
 file_put_contents($path, makeTestWav());
 try {
-    $result = \\App\\Services\\AudioWavPolicy::inspect($path);
+    $result = AudioWavPolicy::inspect($path);
     if ($result['mime_type'] !== 'audio/wav' || $result['duration_ms'] !== 1000 || $result['file_size'] < 32044) {
         throw new RuntimeException('Valid WAV metadata was not parsed correctly.');
     }
