@@ -1,10 +1,11 @@
-## Current feature handoff — 2026-11-02
+## Current feature handoff — 2026-11-02 (audio race follow-up)
 
-- Active task branch: `feature/post-audio-real-trimming`, based on `main` commit `0d9a2f15645055d958adf583de284c97634d1eb7`; reviewed source/documentation head before this handoff refresh: `03c3af84f6576eacd9502f3d4ff304607c78214f`. The branch is 51 commits ahead of `main`, with no commits behind at the last comparison. Do not merge without owner approval.
-- Audio Stage 2 includes real browser WAV trimming, separate private original/rendered files, migration 020, strict server WAV validation, microphone selection, input-level meter, restored rendered preview, and publish-time trim verification.
-- Owner-reported disposable-database tests passed: WAV policy, audio publish rollback/separation/metadata, atomic content-write, draft publish, and draft media recovery. The audio publishing test ran at `4f510cf9e1b0b1474f6da7eb414e8ff32e83a013`; subsequent UI/recovery refinements still need JS syntax and browser verification.
-- The owner's Kali checkout is operated by the owner; the GitHub connector cannot inspect its working tree. No Actions were triggered. Ask the owner to fetch the branch and run the latest PHP/JS checks, then exercise browser recording, recovery, trimming and publish.
-- `plan.md` is the stage tracker. Do not start Audio Display Stage 3 or Image Editor V2 before Stage 2 acceptance.
+- Working repository selected by the owner for this task: `zayanfordesign/ZayanHardwareWebsite`.
+- Active branch: `feature/post-audio-real-trimming`; base `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`; current reviewed head: `c280b75c4a3156ed7a655a3c811f4015367cd390`.
+- Draft PR #48: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48. It remains a draft and is not merged or deployed.
+- Audio Stage 2 source review found a stale MediaRecorder stop-handler race. Commits `0aaa01eb96ab4c01ca31b191afda6281b485d740` and `c280b75c4a3156ed7a655a3c811f4015367cd390` add generation checks after async decoding/waveform work, guard composer insertion and persistence, and distinguish intentional replacement from explicit deletion.
+- Owner explicitly requested no backup and no test runs for this direct implementation pass. No automated tests, browser checks, database writes/migrations, GitHub Actions, merge, or deployment were performed for these commits. Treat the fix as implemented but unverified.
+- Audio Stage 2 remains in progress. Do not begin Audio Display Stage 3 or Image Editor V2 before Stage 2 acceptance.
 
 # Zayan Hardware — AI Context and Handoff
 
@@ -13,7 +14,7 @@
 ## 1. Project identity and scope
 
 - Product: **Zayan Hardware — عصارة الورش**.
-- Repository: `abdelhamidzayan/ZayanHardwareWebsite`.
+- Repository selected for the current audio follow-up: `zayanfordesign/ZayanHardwareWebsite`.
 - Purpose: an Arabic-first, RTL technical community and knowledge system for mobile-phone hardware repair, board-level diagnosis, measurements, schematics, and repair outcomes.
 - Stack: custom PHP 8.2+ MVC, MySQL/MariaDB, vanilla JavaScript/CSS, responsive web UI, PWA and Web Push.
 - Required architecture: Core → Controllers → Services / Models → Views; route definitions in `config/routes.php`; public document root is `public/`.

@@ -3,12 +3,14 @@
 > Updated: 2026-11-02
 > Active feature branch: feature/post-audio-real-trimming
 > Base: main at 0d9a2f15645055d958adf583de284c97634d1eb7
+> Latest branch head: c280b75c4a3156ed7a655a3c811f4015367cd390
 
 ## Delivery rules
 
 - Work in focused feature branches and reviewable pull requests.
 - Do not merge or deploy without the owner's explicit approval.
 - Do not trigger GitHub Actions or paid CI while the usage budget is restricted.
+- Owner requested no backups or test runs for this direct implementation pass; record verification as not run and do not claim a pass.
 - Run focused PHP/JavaScript/database checks locally when the project checkout is available.
 - Keep draft revisions, IndexedDB recovery, media synchronization, pending deletes, and publish rollback behavior intact.
 - Do not begin the next stage until the current stage's source review and local acceptance are complete.
@@ -144,6 +146,17 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - **Implementation Notes:** Avoid caching private draft media or authenticated responses in shared caches.
 
 ## 6. Bugs & Technical Debt
+### AUD-REV-003 — Prevent stale audio stop handlers from restoring deleted recordings
+- **Description:** The MediaRecorder stop handler awaited decoded-duration and waveform work without rechecking its generation token. A reset/deletion during those awaits could allow a stale stop handler to repopulate the composer. Replacing an existing audio item also emitted the normal removal event, which could invalidate the very recording being added.
+- **Priority:** HIGH
+- **State:** IN REVIEW
+- **Acceptance Criteria:** Recheck the originating generation after each asynchronous decode/waveform operation; reject stale work before preview/draft mutation; guard composer insertion across awaited media replacement and local persistence; do not invalidate the active generation when replacing the prior audio item; explicit deletion must still invalidate pending work.
+- **Dependencies:** Browser acceptance remains outstanding.
+- **Affected Files:** `public/js/audio-recorder.js`, `public/js/post-composer.js`.
+- **Test Results:** Source-level review only. Per owner direction, no automated tests, browser checks, database operations, or GitHub Actions were run for this fix.
+- **Commit/PR:** `0aaa01eb96ab4c01ca31b191afda6281b485d740`, `c280b75c4a3156ed7a655a3c811f4015367cd390`; PR #48.
+- **Implementation Notes:** The recorder passes a session-validity callback to the composer. The composer checks it after awaited removal/persistence, removes only the stale newly-added local item if invalidated, and suppresses the removal event only for an intentional replacement. Explicit user deletion retains the event and reset behavior.
+
 ### AUD-REV-002 — Close waveform decoder on every exit path
 - **Description:** Ensure the temporary AudioContext used to rebuild a waveform from a restored audio blob is closed after both successful decoding and decoding failures.
 - **Priority:** LOW
@@ -186,11 +199,12 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Latest branch comparison: 84 commits ahead of `main`, 0 behind; 23 changed files.
 - Draft PR: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48 (Audio recording, real trimming, and publishing).
-- Latest PR head before this tracking update: `ad2f26a69804cddbbced25f2dae00fbfbc778324`.
+- Latest PR head: `c280b75c4a3156ed7a655a3c811f4015367cd390`.
 - GitHub reports `mergeable=true`, `mergeable_state=clean`. GitHub Actions PHP/JS lint, Graphify, and DB matrix completed successfully; latest database run `41475878529` passed all three matrix jobs. No additional commit statuses were reported.
 - PR remains draft because audio-specific publish integration, browser/device acceptance, audio-specific revision/pending-delete recovery, and complete detailed diff review are not complete.
 - Source review confirmed the publishing service requires a single audio item in audio mode, checks rendered WAV format and duration against versioned editor state, moves original and rendered files separately, and restores moved files after confirmed pre-commit rollback. Runtime/database verification remains outstanding.
 
 ## 12. Next Priority
+- Complete remaining Audio Stage 2 source review and owner browser acceptance. The stale stop-handler race is patched in source but intentionally untested per owner direction; do not mark Stage 2 complete until acceptance is available.
 - Database handoff evidence: owner supplied a partial SQL dump excerpt confirming populated `users`, `user_device_specializations`, `post_drafts`, `post_draft_media`, `issues` indexes/constraints, and retention-related triggers. Owner clarified the shown accounts are test accounts. The excerpt does not include the `CREATE TABLE issues` column list or `app_migration_ledger` rows, so it cannot establish whether migration 020 is already applied; do not infer schema state from indexes alone.
 PR #48 is open as a draft. Next: run `draft-audio-publish-integration.php` against the disposable test DB, exercise browser/device and audio-specific revision/pending-delete recovery, and finish detailed diff review. Then convert PR #48 from draft and merge only after these gates pass. Separately inspect the live target schema and verify a complete restore-tested backup before applying migration 020 to `zayan_hardware_clean_20261031`.
