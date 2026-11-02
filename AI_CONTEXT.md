@@ -1,6 +1,6 @@
 ## Current feature handoff — 2026-11-02
 
-- Active task branch: `feature/post-audio-real-trimming`, based on `main` commit `0d9a2f15645055d958adf583de284c97634d1eb7`; current review head before this documentation refresh is `a30055ed9617e10c97c1dc5e5cbda461267f790a`. Do not merge without owner approval.
+- Active task branch: `feature/post-audio-real-trimming`, based on `main` commit `0d9a2f15645055d958adf583de284c97634d1eb7`; reviewed source/documentation head before this handoff refresh: `03c3af84f6576eacd9502f3d4ff304607c78214f`. The branch is 51 commits ahead of `main`, with no commits behind at the last comparison. Do not merge without owner approval.
 - Audio Stage 2 includes real browser WAV trimming, separate private original/rendered files, migration 020, strict server WAV validation, microphone selection, input-level meter, restored rendered preview, and publish-time trim verification.
 - Owner-reported disposable-database tests passed: WAV policy, audio publish rollback/separation/metadata, atomic content-write, draft publish, and draft media recovery. The audio publishing test ran at `4f510cf9e1b0b1474f6da7eb414e8ff32e83a013`; subsequent UI/recovery refinements still need JS syntax and browser verification.
 - The owner's Kali checkout is operated by the owner; the GitHub connector cannot inspect its working tree. No Actions were triggered. Ask the owner to fetch the branch and run the latest PHP/JS checks, then exercise browser recording, recovery, trimming and publish.
