@@ -164,16 +164,16 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Owner-reported earlier checks: AudioWavPolicy PHP syntax/focused test, audio publish integration, atomic content-write, draft publish, draft media-recovery, and disposable fresh-install schema inspection.
 - This session: JavaScript parser checks passed for `audio-recorder.js` and `post-composer.js`. PHP 8.4 syntax checks and the focused `audio-wav-policy.php` suite passed in an isolated local runtime using the branch-fetched policy/test sources (exit code 0). The disposable-DB `draft-audio-publish-integration.php` and browser/device acceptance remain unrun because this session has no project database or browser runtime.
 - A clean clone attempt failed with exit code 128 because this environment could not resolve github.com. The local Kali/XAMPP runtime is not accessible from this session.
-- Required before PR: PHP syntax, JavaScript syntax, focused PHP integration tests against the disposable database, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
+- Required before PR: PHP syntax checks for all changed PHP files, disposable-database audio publish integration, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
 
 ## 11. GitHub References
 - Repository: `zayanfordesign/ZayanHardwareWebsite`
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Latest plan commit before canonicalization: `cbf8c5864b5d109743acad84de3f2f737c91bd58`
-- Current branch comparison before this plan refresh: 68 commits ahead of main and 0 behind.
-- Latest verified branch head before this plan refresh: `b0896f42ed2f2cc21992e19f5ba5049586f59924`.
+- Current branch comparison at latest verification: 70 commits ahead of main and 0 behind.
+- Latest verification commit: `8cf7b33b3ac6958b9ebd015497f88c7d45ceda3e` (PLAN verification update).
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
-Complete runtime verification for the audio-only workflow: PHP/JS syntax, WAV-policy and publish integration tests on the disposable database, then browser acceptance for recording, pause/resume, microphone loss, real trim/re-trim, draft recovery, upload retry, and publish. Do not open a PR, merge, or deploy until these checks and owner review pass.
+Complete the remaining audio acceptance gates: run draft publishing integration against `zayan_fresh_install_test`, then browser/device acceptance for recording, pause/resume, microphone loss, real trim/re-trim, draft recovery, upload retry, and publish. Do not merge or deploy until these checks pass and the audio-only diff is isolated from unrelated changes.
