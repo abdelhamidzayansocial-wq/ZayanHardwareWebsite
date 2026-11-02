@@ -1257,9 +1257,13 @@
     });
 
     window.ZayanComposer = {
-        addAudioBlob: async function (blob, durationMs, trimStartMs, trimEndMs, waveform) {
+        addAudioBlob: async function (blob, durationMs, trimStartMs, trimEndMs, waveform, isCurrentSession) {
+            const isCurrent = function () {
+                return typeof isCurrentSession !== 'function' || isCurrentSession();
+            };
             const existing = media.find(function (item) { return item.media_kind === 'audio'; });
             if (existing) await removeMedia(existing);
+            if (!isCurrent()) return null;
             const item = {
                 local_id: uuid(),
                 media_uuid: '',
@@ -1280,6 +1284,10 @@
             };
             media.push(item);
             await persistBlob(item);
+            if (!isCurrent()) {
+                if (media.includes(item)) await removeMedia(item);
+                return null;
+            }
             await clearAudioSession();
             markDirty();
             await syncServer(false);

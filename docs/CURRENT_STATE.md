@@ -1,3 +1,10 @@
+## 2026-11-02 — Prevent stale audio stop handlers from restoring deleted recordings
+
+- Re-check the originating recorder generation after asynchronous duration decoding and waveform generation, before updating the preview or draft.
+- Pass a session-validity guard into the composer so a stop handler invalidated while replacing an existing audio item cannot append its stale recording after the awaited removal completes.
+- Re-check the session after the local media write; if it became stale, remove only the just-added local media item instead of syncing it.
+- Verification: source review only. Per owner direction, no tests, browser checks, database operations, or GitHub Actions were run for this change. Not merged or deployed.
+
 ## 2026-11-02 — Audio Stage 2 implementation and verification on feature/post-audio-real-trimming
 
 - Migration 020 and matching fresh-install schema retain original audio path/MIME/size separately from the rendered WAV. The owner's disposable `zayan_fresh_install_test` schema inspection confirmed the expected `issues.audio_*` and `post_draft_media.rendered_*` columns.

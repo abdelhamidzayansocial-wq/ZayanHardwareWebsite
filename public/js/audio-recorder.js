@@ -270,7 +270,11 @@
                     return;
                 }
                 try { durationMs = await readDecodedDurationMs(blob) || durationMs; } catch (_) {}
+                // Reset/delete may happen while browser decoding is pending.
+                // Re-check the originating session before any stale result reaches the draft.
+                if (sessionId !== recordingGeneration) return;
                 currentWaveform = await makeWaveform(blob);
+                if (sessionId !== recordingGeneration) return;
                 drawBars(currentWaveform);
                 currentTrimStart = 0;
                 currentTrimEnd = durationMs;
@@ -281,8 +285,13 @@
                 setPreview(blob);
                 setRecordingUi('preview');
                 if (window.ZayanComposer) {
-                    await window.ZayanComposer.addAudioBlob(blob, durationMs, 0, durationMs, currentWaveform);
+                    const added = await window.ZayanComposer.addAudioBlob(
+                        blob, durationMs, 0, durationMs, currentWaveform,
+                        function () { return sessionId === recordingGeneration; }
+                    );
+                    if (!added || sessionId !== recordingGeneration) return;
                     await window.ZayanComposer.clearAudioSession();
+                    if (sessionId !== recordingGeneration) return;
                 }
                 if (audioContext && audioContext.state !== 'closed') await audioContext.close().catch(function () {});
                 audioContext = null;

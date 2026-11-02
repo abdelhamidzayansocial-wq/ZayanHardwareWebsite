@@ -1,3 +1,10 @@
+## 2026-11-02 — Prevent stale audio stop handlers from restoring deleted recordings
+
+- Re-check the originating recorder generation after asynchronous duration decoding and waveform generation, before updating the preview or draft.
+- Pass a session-validity guard into the composer so a stop handler invalidated while replacing an existing audio item cannot append its stale recording after the awaited removal completes.
+- Re-check the session after the local media write; if it became stale, remove only the just-added local media item instead of syncing it.
+- Verification: source review only. Per owner direction, no tests, browser checks, database operations, or GitHub Actions were run for this change. Not merged or deployed.
+
 ## 2026-11-02 — Audio Stage 2: WAV trimming, recovery and private original preservation
 
 - Added migration 020 and matching fresh-install columns for separate original and rendered audio metadata. Fresh installs use `database/fresh_install.sql` only; databases already at 019 require schema inspection before applying migration 020 once.
