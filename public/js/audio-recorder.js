@@ -247,14 +247,28 @@
                 sourceNode = null;
                 stopTracks();
             });
+            stream.getAudioTracks().forEach(function (track) {
+                track.addEventListener('ended', function () {
+                    if (!recorder || recorder.state === 'inactive') return;
+                    if (recorder.state === 'recording') elapsedBeforeCurrentRun += performance.now() - recordingStartedAt;
+                    clearInterval(timer);
+                    setError('انقطع اتصال الميكروفون. احتفظنا بالجزء المسجل؛ افحص الجهاز ثم أكمل.');
+                    recorder.stop();
+                }, { once: true });
+            });
             recorder.start(1000);
             timer = window.setInterval(updateClock, 200);
             setRecordingUi('recording');
         } catch (error) {
             stopTracks();
-            setError(error && error.name === 'NotAllowedError'
+            const message = error && error.name === 'NotAllowedError'
                 ? 'اسمح باستخدام الميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.'
-                : 'تعذر بدء التسجيل. تأكد من اتصال الميكروفون وجرب مرة أخرى.');
+                : error && error.name === 'NotFoundError'
+                    ? 'لم يتم العثور على ميكروفون متصل بالجهاز.'
+                    : error && error.name === 'NotReadableError'
+                        ? 'الميكروفون مستخدم في تطبيق آخر أو تعذر الوصول إليه.'
+                        : 'تعذر بدء التسجيل. تأكد من اتصال الميكروفون وجرب مرة أخرى.';
+            setError(message);
         }
     }
 
