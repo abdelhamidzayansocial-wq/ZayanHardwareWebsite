@@ -40,7 +40,7 @@
 - **Dependencies:** Owner confirmation of canonical repository and DB name (confirmed 2026-11-02).
 - **Affected Files:** `config/database.php`, `.env.example`, `database/FRESH_INSTALL.md`, `docs/DATABASE_BACKUP_RESTORE.md`.
 - **Test Results:** Not run. Source changes only; exact runtime DB existence/configuration is not verified.
-- **Commit/PR:** Branch `chore/repository-db-name-consolidation`; commits recorded in GitHub history; PR not yet opened.
+- **Commit/PR:** Branch `chore/repository-db-name-consolidation`; commits recorded in GitHub history; PR #49 opened as draft: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49.
 - **Implementation Notes:** Existing local `.env` is intentionally not modified by a GitHub source change. Do not rename/create/migrate a live DB as part of this task.
 
 ### CONS-LOCAL-001 — Reconcile local workspaces into the official checkout
@@ -140,8 +140,8 @@
 - Main baseline: `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Working branch: `chore/repository-db-name-consolidation`
 - Previous audio feature PR #48 remains separate and must not be mixed into this consolidation.
-- PR for this branch: not created yet.
-- Merge status: not merged.
+- PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 (open, draft; head `e8c98fe924b8e9f2dff9bf63cf486f8adea41f09`).
+- Merge status: not merged; mergeability currently reported false by GitHub.
 
 ## 12. Next Priority
 
