@@ -34,15 +34,16 @@
 - [x] Require the confirmed trim metadata to match the uploaded WAV before publishing.
 - [x] Publish the rendered WAV as the playable audio_path; retain the original in a private-only column.
 - [x] Add microphone selection, browser-native MIME capability detection, and a live input-level meter.
-- [x] Run PHP syntax checks for AudioWavPolicy and its focused test on Kali (reported by owner).
-- [x] Run the WAV-policy test on Kali (reported by owner).
-- [x] Run audio publish integration covering original/rendered separation, metadata and rollback restoration on the disposable database (reported by owner).
-- [x] Run existing atomic content-write, draft publish and draft media-recovery integration tests on the disposable database (reported by owner).
-- [x] Inspect the disposable fresh-install schema for the new audio columns (reported by owner).
+- [ ] Re-run PHP syntax checks for AudioWavPolicy and its focused test from the current branch checkout; prior owner-reported result is not independently reproducible in this session.
+- [ ] Re-run the WAV-policy test from the current branch checkout and capture its exit code.
+- [ ] Run audio publish integration covering original/rendered separation, metadata and rollback restoration on the disposable database; not verified in this session.
+- [ ] Run existing atomic content-write, draft publish and draft media-recovery integration tests on the disposable database; not verified in this session.
+- [ ] Inspect the disposable fresh-install schema for the new audio columns and record the schema evidence; not verified in this session.
 - [ ] Run latest PHP/JavaScript syntax checks after the newest UI/recovery refinements.
 - [ ] Browser-test record, pause/resume, microphone permission/device loss, IndexedDB crash recovery, real trim/re-trim preview, upload retry and full publish.
 - [ ] Exercise audio-specific draft revision conflict and pending-delete recovery.
-- [ ] Review the complete diff and open a draft PR for owner review.
+- [x] Review the changed-file inventory and open draft PR #48 for owner review.
+- [ ] Complete detailed review of all 23 changed files before merge.
 
 ## Database application notes
 
@@ -71,7 +72,7 @@ Audio player display, Image Editor V2, and PWA integration are intentionally out
 - **Dependencies:** Browser/runtime verification on supported browsers; disposable database integration environment.
 - **Affected Files:** `app/services/DraftPublishingService.php`, `public/js/audio-recorder.js`, `public/js/post-composer.js`, `tests/php/draft-audio-publish-integration.php`.
 - **Test Results:** Regression cases authored for exact match, the 5 ms decoded-duration boundary, and a material 500 ms mismatch with rollback restoration. Tests have NOT been executed. PHP/JavaScript syntax and browser/device tests remain pending because this session cannot access the project runtime; a clean clone attempt failed with exit code 128 (DNS/network resolution for github.com).
-- **Commit/PR:** Implementation commits: `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`. No PR created; verification is still required.
+- **Commit/PR:** Implementation commits: `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`. Draft PR #48: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48. Runtime verification is still required.
 - **Implementation Notes:** New trims derive source duration from decoded audio and normalize old draft trim positions against the decoded duration before rendering. Editor-state version 2 declares `decoded-audio`; publish-time tolerance is 5 ms for this version. Legacy version-1 drafts retain the previous 1500 ms tolerance for backward compatibility. This is source-level implementation only until runtime tests pass.
 
 ---
@@ -105,7 +106,7 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - **Dependencies:** PHP/JS runtime checks and browser acceptance on the project host.
 - **Affected Files:** `public/js/audio-recorder.js`, `public/js/post-composer.js`, `app/services/DraftPublishingService.php`, `tests/php/draft-audio-publish-integration.php`.
 - **Test Results:** Regression cases authored. JavaScript parser checks passed for `public/js/audio-recorder.js` and `public/js/post-composer.js`. PHP 8.4 syntax checks passed for the isolated branch-fetched `AudioWavPolicy.php` and `audio-wav-policy.php`; the focused WAV-policy suite passed with exit code 0. The disposable-DB publish integration and browser/device tests remain unrun.
-- **Commit/PR:** Commits `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`, `7080b45934ba8b5e4fe621b4e0d071b5113d30c7`, `8eae9c96ce077bdb7d31cfa36c6748ac782830e5`. No PR yet.
+- **Commit/PR:** Commits `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`, `7080b45934ba8b5e4fe621b4e0d071b5113d30c7`, `8eae9c96ce077bdb7d31cfa36c6748ac782830e5`. Draft PR #48: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48; runtime verification is still required.
 - **Implementation Notes:** Browser recording duration is decoded from the source blob. Existing trim percentages are normalized against decoded duration when re-rendering. Editor state version 2 identifies `decoded-audio`; server validation uses 5 ms for v2 and retains 1500 ms for legacy v1. Recorder stop events are isolated to their originating MediaRecorder/chunk list. A generation token invalidates pending microphone permission requests on reset and prevents overlapping startup/late streams from replacing the current session. Queued `dataavailable` events now check that token before persisting chunks or progress, preventing a deleted/stale recording from repopulating the next audio session.
 
 ## 5. Backlog
@@ -183,11 +184,12 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Repository: `zayanfordesign/ZayanHardwareWebsite`
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
-- Branch comparison at PR creation: 82 commits ahead of `main`, 0 behind; 23 changed files.
+- Branch comparison after PLAN tracking update: 83 commits ahead of `main`, 0 behind; 23 changed files.
 - Draft PR: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48 (Audio recording, real trimming, and publishing).
-- PR head: `c6d3a9992aaa50d3f902fb7b8ee7798b271e22fc`.
+- PR head at creation: `c6d3a9992aaa50d3f902fb7b8ee7798b271e22fc`; PLAN tracking commit is added on the same PR branch.
 - GitHub reports `mergeable=true`, `mergeable_state=unstable`; no CI workflow runs or commit statuses are recorded for this head.
 - PR remains draft because required integration/browser acceptance and full changed-file PHP syntax checks are not complete.
+- Source review confirmed the publishing service requires a single audio item in audio mode, checks rendered WAV format and duration against versioned editor state, moves original and rendered files separately, and restores moved files after confirmed pre-commit rollback. Runtime/database verification remains outstanding.
 
 ## 12. Next Priority
 - Database handoff evidence: owner supplied a partial SQL dump excerpt confirming populated `users`, `user_device_specializations`, `post_drafts`, `post_draft_media`, `issues` indexes/constraints, and retention-related triggers. Owner clarified the shown accounts are test accounts. The excerpt does not include the `CREATE TABLE issues` column list or `app_migration_ledger` rows, so it cannot establish whether migration 020 is already applied; do not infer schema state from indexes alone.
