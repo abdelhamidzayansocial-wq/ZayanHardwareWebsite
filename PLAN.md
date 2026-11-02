@@ -176,7 +176,7 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 
 ## 10. Testing & Verification
 - Owner-reported earlier checks: AudioWavPolicy PHP syntax/focused test, audio publish integration, atomic content-write, draft publish, draft media-recovery, and disposable fresh-install schema inspection.
-- GitHub Actions for PR #48: repository-wide PHP syntax check and JavaScript syntax check passed (run 41475496098); Graphify passed (run 41475496836); database fresh-install and existing integration suite passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11 (run 41475496144). The database workflow exercised existing draft publish, media recovery, and backup/restore checks. It does NOT invoke the new `tests/php/draft-audio-publish-integration.php` audio-specific test. The focused WAV-policy test previously passed in an isolated PHP 8.4 workspace (exit code 0), but that workspace was temporary and is no longer available for rerun. Browser/device acceptance remains unrun because this session has no browser/device runtime.
+- GitHub Actions for PR #48: repository-wide PHP syntax check and JavaScript syntax check passed (run 41475496098); Graphify passed (run 41475496836); database fresh-install and existing integration suite passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11 (run 41475496144; latest rerun 41475878529 also passed on all three database versions). The database workflow exercised existing draft publish, media recovery, and backup/restore checks. It does NOT invoke the new `tests/php/draft-audio-publish-integration.php` audio-specific test. The focused WAV-policy test previously passed in an isolated PHP 8.4 workspace (exit code 0), but that workspace was temporary and is no longer available for rerun. Browser/device acceptance remains unrun because this session has no browser/device runtime.
 - A clean clone attempt failed with exit code 128 because this environment could not resolve github.com. The local Kali/XAMPP runtime is not accessible from this session.
 - Required before merge (PR #48 opened as draft): disposable-database audio publish integration, browser/device acceptance, audio-specific draft revision conflict and pending-delete recovery, and complete detailed diff review. Repository-wide PHP and JavaScript syntax checks and the existing DB integration matrix have passed in GitHub Actions.
 
@@ -186,8 +186,8 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Latest branch comparison: 84 commits ahead of `main`, 0 behind; 23 changed files.
 - Draft PR: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48 (Audio recording, real trimming, and publishing).
-- Latest PR head: `7177b2e8d6d8fd12e26ef4bb0d2b22c0603e2d4a`.
-- GitHub reports `mergeable=true`, `mergeable_state=clean`. GitHub Actions PHP/JS lint, Graphify, and DB matrix completed successfully; no additional commit statuses were reported.
+- Latest PR head before this tracking update: `ad2f26a69804cddbbced25f2dae00fbfbc778324`.
+- GitHub reports `mergeable=true`, `mergeable_state=clean`. GitHub Actions PHP/JS lint, Graphify, and DB matrix completed successfully; latest database run `41475878529` passed all three matrix jobs. No additional commit statuses were reported.
 - PR remains draft because audio-specific publish integration, browser/device acceptance, audio-specific revision/pending-delete recovery, and complete detailed diff review are not complete.
 - Source review confirmed the publishing service requires a single audio item in audio mode, checks rendered WAV format and duration against versioned editor state, moves original and rendered files separately, and restores moved files after confirmed pre-commit rollback. Runtime/database verification remains outstanding.
 
