@@ -33,11 +33,15 @@
 - [x] Validate WAV container, PCM format, channel count, sample rate, bit depth, duration and size server-side.
 - [x] Require the confirmed trim metadata to match the uploaded WAV before publishing.
 - [x] Publish the rendered WAV as the playable audio_path; retain the original in a private-only column.
-- [x] Add microphone selection and keep browser-native MIME capability detection.
-- [ ] Run PHP syntax checks and focused WAV-policy tests on Kali.
-- [ ] Run JavaScript syntax checks and browser tests for record, pause/resume, restore, trim, preview and re-trim.
-- [ ] Run draft revision/conflict, offline IndexedDB recovery, upload retry and publish rollback integration tests.
-- [ ] Apply the correct schema path on the local empty database and verify a full publish round trip.
+- [x] Add microphone selection, browser-native MIME capability detection, and a live input-level meter.
+- [x] Run PHP syntax checks for AudioWavPolicy and its focused test on Kali (reported by owner).
+- [x] Run the WAV-policy test on Kali (reported by owner).
+- [x] Run audio publish integration covering original/rendered separation, metadata and rollback restoration on the disposable database (reported by owner).
+- [x] Run existing atomic content-write, draft publish and draft media-recovery integration tests on the disposable database (reported by owner).
+- [x] Inspect the disposable fresh-install schema for the new audio columns (reported by owner).
+- [ ] Run latest PHP/JavaScript syntax checks after the newest UI/recovery refinements.
+- [ ] Browser-test record, pause/resume, microphone permission/device loss, IndexedDB crash recovery, real trim/re-trim preview, upload retry and full publish.
+- [ ] Exercise audio-specific draft revision conflict and pending-delete recovery.
 - [ ] Review the complete diff and open a draft PR for owner review.
 
 ## Database application notes
