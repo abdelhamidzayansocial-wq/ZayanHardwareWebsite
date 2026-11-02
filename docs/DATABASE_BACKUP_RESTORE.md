@@ -38,7 +38,7 @@ First inspect the exact MySQL/MariaDB host and source database name in the local
 Example:
 
 ```bash
-SOURCE_DB="zayan_hardware"
+SOURCE_DB="zayanhardware_db"
 RESTORE_DB="zayan_hardware_restore_test_20261031"
 BACKUP="/home/a/backups/zayan-hardware/zayan_hardware_full_verified_20261031_023151.sql.gz"
 

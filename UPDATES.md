@@ -1,3 +1,13 @@
+## 2026-11-02 — Repository and database-name consolidation (in progress)
+
+- Owner confirmed `zayanfordesign/ZayanHardwareWebsite` as the canonical GitHub repository and `/opt/lampp/htdocs/zayan_hardware` as the official local project folder.
+- Created isolated branch `chore/repository-db-name-consolidation` from `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`.
+- Changed the application DB fallback in `config/database.php` and `DB_NAME` in `.env.example` to `zayanhardware_db`. Updated the fresh-install and backup/restore command examples to the same name.
+- Corrected the canonical repository reference in `AI_CONTEXT.md` and created `PLAN.md` with the required 12 sections and tracked consolidation tasks.
+- Verification: GitHub source edits only. PHP/tests/database checks and GitHub Actions were not run. The owner's local `.env`, database, and filesystem were not accessed or changed.
+- Opened draft PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49. latest GitHub check reports mergeable=true; no merge was attempted.
+- Remaining: audit every active DB-name reference; inspect and reconcile local zayanv1/zayanv2/backup/temp folders; archive only after verified reconciliation. This branch is not merged or deployed.
+
 ## 2026-11-02 — Line-level formatting state in the post composer
 
 - Live Preview now hides Markdown formatting markers on both active and inactive lines; formatted text remains styled while the source markers stay invisible.
