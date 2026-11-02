@@ -69,7 +69,7 @@ Audio player display, Image Editor V2, and PWA integration are intentionally out
 - **Dependencies:** Browser/runtime verification on supported browsers; disposable database integration environment.
 - **Affected Files:** `app/services/DraftPublishingService.php`, `public/js/audio-recorder.js`, `public/js/post-composer.js`, `tests/php/draft-audio-publish-integration.php`.
 - **Test Results:** Regression cases authored for exact match, the 5 ms decoded-duration boundary, and a material 500 ms mismatch with rollback restoration. Tests have NOT been executed. PHP/JavaScript syntax and browser/device tests remain pending because this session cannot access the project runtime; a clean clone attempt failed with exit code 128 (DNS/network resolution for github.com).
-- **Commit/PR:** Implementation commits: `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`. No PR created; verification is still required.
+- **Commit/PR:** Implementation commits: `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`. No PR created; verification is still required.
 - **Implementation Notes:** New trims derive source duration from decoded audio and normalize old draft trim positions against the decoded duration before rendering. Editor-state version 2 declares `decoded-audio`; publish-time tolerance is 5 ms for this version. Legacy version-1 drafts retain the previous 1500 ms tolerance for backward compatibility. This is source-level implementation only until runtime tests pass.
 
 ---
@@ -171,9 +171,9 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Latest plan commit before canonicalization: `cbf8c5864b5d109743acad84de3f2f737c91bd58`
-- Current branch comparison at this review: 61 commits ahead of main and 0 behind.
-- Latest verified branch head before this plan refresh: `674cec46825b805c9c648c48daa294617ea6c26e`.
+- Current branch comparison at this review: 63 commits ahead of main and 0 behind.
+- Latest verified branch head: `ce832f1369edbaeff10dd7c9937a2447ce14844f`.
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
-Run the authored PHP and JavaScript regression checks on the project runtime, then complete browser acceptance for the audio workflow. Do not open a PR, merge, or deploy until the checks and full diff review pass.
+Complete runtime verification for the audio-only workflow: PHP/JS syntax, WAV-policy and publish integration tests on the disposable database, then browser acceptance for recording, pause/resume, microphone loss, real trim/re-trim, draft recovery, upload retry, and publish. Do not open a PR, merge, or deploy until these checks and owner review pass.
