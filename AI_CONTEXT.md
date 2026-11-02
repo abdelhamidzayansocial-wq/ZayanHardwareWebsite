@@ -5,7 +5,7 @@
 ## 1. Project identity and scope
 
 - Product: **Zayan Hardware — عصارة الورش**.
-- Repository: `abdelhamidzayan/ZayanHardwareWebsite`.
+- Repository: `zayanfordesign/ZayanHardwareWebsite` (canonical GitHub repository confirmed by owner on 2026-11-02).
 - Purpose: an Arabic-first, RTL technical community and knowledge system for mobile-phone hardware repair, board-level diagnosis, measurements, schematics, and repair outcomes.
 - Stack: custom PHP 8.2+ MVC, MySQL/MariaDB, vanilla JavaScript/CSS, responsive web UI, PWA and Web Push.
 - Required architecture: Core → Controllers → Services / Models → Views; route definitions in `config/routes.php`; public document root is `public/`.
