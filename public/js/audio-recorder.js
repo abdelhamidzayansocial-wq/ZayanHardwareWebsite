@@ -18,6 +18,7 @@
     const errorLabel = root.querySelector('[data-audio-error]');
     const applyTrimButton = root.querySelector('[data-audio-apply-trim]');
     const deviceSelect = root.querySelector('[data-audio-device]');
+    const levelMeter = root.querySelector('[data-audio-level]');
     const context = wave.getContext('2d');
 
     let recorder = null;
@@ -100,6 +101,12 @@
         const samples = new Uint8Array(analyser.fftSize);
         const values = [];
         analyser.getByteTimeDomainData(samples);
+        let squareTotal = 0;
+        for (let i = 0; i < samples.length; i++) {
+            const normalized = (samples[i] - 128) / 128;
+            squareTotal += normalized * normalized;
+        }
+        if (levelMeter) levelMeter.value = Math.min(1, Math.sqrt(squareTotal / samples.length) * 3.2);
         const bucketSize = Math.floor(samples.length / 52);
         for (let i = 0; i < 52; i++) {
             let total = 0;
@@ -335,6 +342,7 @@
         preview.load();
         timeLabel.textContent = '00:00';
         drawBars([]);
+        if (levelMeter) levelMeter.value = 0;
         trimStart.value = '0';
         trimEnd.value = '100';
         setRecordingUi('ready');
@@ -344,7 +352,10 @@
     function bindExistingAudio() {
         const item = window.ZayanComposer ? window.ZayanComposer.getAudio() : null;
         if (!item) return;
-        setPreview(item.original_url || item.url);
+        const restoredPreview = item.renderedBlob || (item.rendered ? item.url : (item.original_url || item.url));
+        setPreview(restoredPreview);
+        previewIsTrimmed = Boolean(item.renderedBlob || item.rendered);
+        if (previewIsTrimmed) statusLabel.textContent = 'تم اعتماد نسخة WAV المقصوصة';
         const meta = window.ZayanComposer.getAudioMeta ? window.ZayanComposer.getAudioMeta() : null;
         durationMs = Number(meta?.duration_ms || item.duration_ms || 0);
         currentTrimStart = Number(meta?.trim_start_ms || 0);
