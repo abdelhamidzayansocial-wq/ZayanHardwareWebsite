@@ -182,7 +182,7 @@ try {
 
     // A successful publish must point the post at the trimmed WAV while keeping
     // the original recording separately in private storage.
-    $success = makeDraftAudioFixture($pdo, $userId, $privateRoot, 'Audio publish ' . bin2hex(random_bytes(4)));
+    $success = makeDraftAudioFixture($pdo, $userId, $privateRoot, 'Audio publish ' . bin2hex(random_bytes(4)), 1505);
     $issueId = DraftPublishingService::publish($success['draft_id'], $userId, 1);
     $issueQuery = $pdo->prepare(
         'SELECT audio_path, audio_original_path, audio_original_mime_type, audio_original_file_size,
@@ -198,7 +198,9 @@ try {
     expectDraftAudio($issue['audio_original_mime_type'] === 'audio/ogg', 'Original MIME type must be preserved.');
     expectDraftAudio((int) $issue['audio_original_file_size'] === $success['original_bytes'], 'Original size metadata must be preserved.');
     expectDraftAudio((int) $issue['audio_file_size'] === $success['rendered_bytes'], 'Rendered size metadata must match the WAV.');
-    expectDraftAudio((int) $issue['audio_duration_ms'] === 1500, 'Published duration must come from inspected WAV data.');
+    expectDraftAudio((int) $issue['audio_duration_ms'] === 1505, 'Published duration must come from inspected WAV data.');
+    expectDraftAudio(abs(((int) $issue['audio_trim_end_ms'] - (int) $issue['audio_trim_start_ms']) - (int) $issue['audio_duration_ms']) === 5,
+        'Decoded-duration validation must accept the documented 5 ms boundary.');
     expectDraftAudio((int) $issue['audio_trim_start_ms'] === 250 && (int) $issue['audio_trim_end_ms'] === 1750,
         'Published trim boundaries must match the confirmed editor state.');
 
