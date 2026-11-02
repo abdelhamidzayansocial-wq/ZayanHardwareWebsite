@@ -190,6 +190,7 @@
             setError('تعذر تجهيز المسودة. حدّث الصفحة وحاول مرة أخرى.');
             return;
         }
+        const sessionId = ++recordingGeneration;
         try {
             const audioConstraints = {
                 echoCancellation: true,
@@ -197,8 +198,18 @@
                 autoGainControl: true
             };
             if (deviceSelect && deviceSelect.value) audioConstraints.deviceId = { exact: deviceSelect.value };
-            stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+            const acquiredStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+            if (sessionId !== recordingGeneration) {
+                acquiredStream.getTracks().forEach(function (track) { track.stop(); });
+                return;
+            }
+            stream = acquiredStream;
             await refreshMicrophones();
+            if (sessionId !== recordingGeneration) {
+                acquiredStream.getTracks().forEach(function (track) { track.stop(); });
+                if (stream === acquiredStream) stream = null;
+                return;
+            }
             const mimeCandidates = [
                 'audio/webm;codecs=opus',
                 'audio/mp4',
@@ -211,7 +222,6 @@
             recorder = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream);
             const activeRecorder = recorder;
             const activeMimeType = activeRecorder.mimeType || mimeType || 'audio/webm';
-            const sessionId = ++recordingGeneration;
             const recordingChunks = [];
             chunks = [];
             elapsedBeforeCurrentRun = 0;
