@@ -55,7 +55,7 @@ function makeDraftAudioWav(int $durationMs): string
 }
 
 /** @return array{draft_id:string,media_uuid:string,original:string,rendered:string,original_bytes:int,rendered_bytes:int,title:string} */
-function makeDraftAudioFixture(PDO $pdo, int $userId, string $privateRoot, string $title): array
+function makeDraftAudioFixture(PDO $pdo, int $userId, string $privateRoot, string $title, int $renderedDurationMs = 1500): array
 {
     $draftId = PostDraft::newId();
     $mediaUuid = PostDraft::newId();
@@ -105,7 +105,7 @@ function makeDraftAudioFixture(PDO $pdo, int $userId, string $privateRoot, strin
     $originalPath = $directory . '/' . $originalName;
     file_put_contents($originalPath, $originalBytes);
 
-    $renderedBytes = makeDraftAudioWav(1500);
+    $renderedBytes = makeDraftAudioWav($renderedDurationMs);
     $renderedName = $mediaUuid . '-rendered.wav';
     $renderedPath = $directory . '/' . $renderedName;
     file_put_contents($renderedPath, $renderedBytes);
@@ -124,8 +124,9 @@ function makeDraftAudioFixture(PDO $pdo, int $userId, string $privateRoot, strin
         'drafts/' . $draftId . '/' . $renderedName,
         hash('sha256', $renderedBytes),
         json_encode([
-            'version' => 1,
+            'version' => 2,
             'kind' => 'audio-trim',
+            'source_duration_basis' => 'decoded-audio',
             'trim_start_ms' => 250,
             'trim_end_ms' => 1750,
             'source_duration_ms' => 2000,
@@ -165,6 +166,19 @@ try {
     $draftExists = $pdo->prepare('SELECT id FROM post_drafts WHERE id = ? AND user_id = ?');
     $draftExists->execute([$rollback['draft_id'], $userId]);
     expectDraftAudio($draftExists->fetchColumn() !== false, 'Rollback must preserve the audio draft.');
+
+    // A materially shorter WAV must be rejected for decoded-duration metadata,
+    // and the failed publish must restore both files to draft storage.
+    $mismatch = makeDraftAudioFixture($pdo, $userId, $privateRoot, 'Audio mismatch ' . bin2hex(random_bytes(4)), 1000);
+    $mismatchObserved = false;
+    try {
+        DraftPublishingService::publish($mismatch['draft_id'], $userId, 1);
+    } catch (DomainException $error) {
+        $mismatchObserved = $error->getMessage() === 'draft_audio_render_duration_mismatch';
+    }
+    expectDraftAudio($mismatchObserved, 'A materially mismatched decoded WAV duration must be rejected.');
+    expectDraftAudio(is_file($mismatch['original']), 'Duration mismatch rollback must restore the original recording.');
+    expectDraftAudio(is_file($mismatch['rendered']), 'Duration mismatch rollback must restore the rendered WAV.');
 
     // A successful publish must point the post at the trimmed WAV while keeping
     // the original recording separately in private storage.
