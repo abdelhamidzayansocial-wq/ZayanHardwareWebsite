@@ -102,9 +102,9 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - **Acceptance Criteria:** New trim state is explicitly versioned; decoded source duration is authoritative; 5 ms rounding tolerance is enforced for version-2 decoded metadata; legacy version-1 drafts retain compatibility; integration tests accept the 5 ms boundary and reject a material mismatch; rollback preserves both source and rendered files.
 - **Dependencies:** PHP/JS runtime checks and browser acceptance on the project host.
 - **Affected Files:** `public/js/audio-recorder.js`, `public/js/post-composer.js`, `app/services/DraftPublishingService.php`, `tests/php/draft-audio-publish-integration.php`.
-- **Test Results:** Regression cases authored; not executed in this session. No PHP/JS/database/browser test result is claimed.
-- **Commit/PR:** Commits `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`. No PR yet.
-- **Implementation Notes:** Browser recording duration is decoded from the source blob. Existing trim percentages are normalized against decoded duration when re-rendering. Editor state version 2 identifies `decoded-audio`; server validation uses 5 ms for v2 and retains 1500 ms for legacy v1.
+- **Test Results:** Regression cases authored; not executed in this session. JavaScript syntax check via V8 `new Function` passed for `public/js/audio-recorder.js` and `public/js/post-composer.js`. PHP syntax, database integration, and browser/device tests remain unrun.
+- **Commit/PR:** Commits `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`, `7080b45934ba8b5e4fe621b4e0d071b5113d30c7`, `8eae9c96ce077bdb7d31cfa36c6748ac782830e5`. No PR yet.
+- **Implementation Notes:** Browser recording duration is decoded from the source blob. Existing trim percentages are normalized against decoded duration when re-rendering. Editor state version 2 identifies `decoded-audio`; server validation uses 5 ms for v2 and retains 1500 ms for legacy v1. Recorder stop events are isolated to their originating MediaRecorder/chunk list. A generation token invalidates pending microphone permission requests on reset and prevents overlapping startup/late streams from replacing the current session.
 
 ## 5. Backlog
 ### AUD-UI-003 — Published audio player and feed indicator
@@ -171,8 +171,8 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Latest plan commit before canonicalization: `cbf8c5864b5d109743acad84de3f2f737c91bd58`
-- Current branch comparison before this plan refresh: 67 commits ahead of main and 0 behind.
-- Latest verified branch head before this plan refresh: `8eae9c96ce077bdb7d31cfa36c6748ac782830e5`.
+- Current branch comparison before this plan refresh: 68 commits ahead of main and 0 behind.
+- Latest verified branch head before this plan refresh: `b0896f42ed2f2cc21992e19f5ba5049586f59924`.
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
