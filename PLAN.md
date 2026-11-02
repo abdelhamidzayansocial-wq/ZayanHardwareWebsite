@@ -162,7 +162,7 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 
 ## 10. Testing & Verification
 - Owner-reported earlier checks: AudioWavPolicy PHP syntax/focused test, audio publish integration, atomic content-write, draft publish, draft media-recovery, and disposable fresh-install schema inspection.
-- This session: source review and GitHub diff inspection only. New regression cases for exact duration, 5 ms boundary, material mismatch, and rollback restoration were authored but not run.
+- This session: JavaScript parser checks passed for `audio-recorder.js` and `post-composer.js`. PHP 8.4 syntax checks and the focused `audio-wav-policy.php` suite passed in an isolated local runtime using the branch-fetched policy/test sources (exit code 0). The disposable-DB `draft-audio-publish-integration.php` and browser/device acceptance remain unrun because this session has no project database or browser runtime.
 - A clean clone attempt failed with exit code 128 because this environment could not resolve github.com. The local Kali/XAMPP runtime is not accessible from this session.
 - Required before PR: PHP syntax, JavaScript syntax, focused PHP integration tests against the disposable database, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
 
