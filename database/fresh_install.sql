@@ -16,7 +16,7 @@
 --    are protected against physical deletion; use application soft-delete flows.
 -- 6. The historical incremental migrations remain for audit/upgrade history.
 --
--- Generated from the reviewed 000–019 fresh-install schema, with duplicate
+-- Generated from the reviewed 000–020 fresh-install schema, with duplicate
 -- 013 omitted (terms_acceptances is already created in 002) and unsafe
 -- oldest-user auto-promotion removed from the new-install path.
 SET NAMES utf8mb4;
