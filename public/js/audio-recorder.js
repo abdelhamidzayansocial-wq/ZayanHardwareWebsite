@@ -219,7 +219,7 @@
             const mimeType = mimeCandidates.find(function (mime) {
                 return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime);
             });
-            recorder = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream);
+            recorder = mimeType ? new MediaRecorder(acquiredStream, { mimeType: mimeType }) : new MediaRecorder(acquiredStream);
             const activeRecorder = recorder;
             const activeMimeType = activeRecorder.mimeType || mimeType || 'audio/webm';
             const recordingChunks = [];
@@ -298,6 +298,7 @@
             timer = window.setInterval(updateClock, 200);
             setRecordingUi('recording');
         } catch (error) {
+            if (sessionId !== recordingGeneration) return;
             stopTracks();
             const message = error && error.name === 'NotAllowedError'
                 ? 'اسمح باستخدام الميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.'
