@@ -18,7 +18,7 @@ It creates the complete Zayan Hardware schema on MySQL 8.0+ or MariaDB 10.4+.
 Example database creation:
 
 ```sql
-CREATE DATABASE zayan_hardware
+CREATE DATABASE zayanhardware_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 ```
@@ -26,7 +26,7 @@ CREATE DATABASE zayan_hardware
 Then from the project root:
 
 ```bash
-DB_NAME=zayan_hardware php bin/bootstrap-first-admin.php --username=OWNER_USERNAME --confirm-database=zayan_hardware --confirm-first-admin
+DB_NAME=zayanhardware_db php bin/bootstrap-first-admin.php --username=OWNER_USERNAME --confirm-database=zayanhardware_db --confirm-first-admin
 ```
 
 Replace the username and database name with the actual values. The command requires an active account, exact database-name confirmation, and zero existing administrators. It serializes concurrent attempts and records a security-audit event. **The fresh-install SQL never promotes the first registered account automatically.**
