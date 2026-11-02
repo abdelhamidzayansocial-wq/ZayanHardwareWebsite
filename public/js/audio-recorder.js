@@ -456,6 +456,7 @@
         currentTrimEnd = Math.round(durationMs * Number(trimEnd.value) / 100);
         if (currentTrimEnd <= currentTrimStart) currentTrimEnd = Math.min(durationMs, currentTrimStart + 100);
         window.ZayanComposer?.updateAudioTrim(currentTrimStart, currentTrimEnd, durationMs);
+        if (previewIsTrimmed) setError('غيّرت نقاط القص بعد اعتمادها. اضغط «اعتماد القص» مرة أخرى لتحديث ملف WAV.');
     }
 
     deviceSelect?.addEventListener('change', function () { setError('سيُستخدم الميكروفون المحدد في التسجيل التالي.'); });
