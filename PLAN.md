@@ -102,7 +102,7 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - **Acceptance Criteria:** New trim state is explicitly versioned; decoded source duration is authoritative; 5 ms rounding tolerance is enforced for version-2 decoded metadata; legacy version-1 drafts retain compatibility; integration tests accept the 5 ms boundary and reject a material mismatch; rollback preserves both source and rendered files.
 - **Dependencies:** PHP/JS runtime checks and browser acceptance on the project host.
 - **Affected Files:** `public/js/audio-recorder.js`, `public/js/post-composer.js`, `app/services/DraftPublishingService.php`, `tests/php/draft-audio-publish-integration.php`.
-- **Test Results:** Regression cases authored; not executed in this session. JavaScript syntax check via V8 `new Function` passed for `public/js/audio-recorder.js` and `public/js/post-composer.js`. PHP syntax, database integration, and browser/device tests remain unrun.
+- **Test Results:** Regression cases authored. JavaScript parser checks passed for `public/js/audio-recorder.js` and `public/js/post-composer.js`. PHP 8.4 syntax checks passed for the isolated branch-fetched `AudioWavPolicy.php` and `audio-wav-policy.php`; the focused WAV-policy suite passed with exit code 0. The disposable-DB publish integration and browser/device tests remain unrun.
 - **Commit/PR:** Commits `212083989c36e1604fab468979a0813aaf38d1a4`, `20db34c3b640b00f08c9fa6a0a6cf242829cba8d`, `bf02b9feba8f7cd703c61ffebbbfba99e3c3a7fb`, `64b0d574e3eb1b018d9626ed4fe00fd288c0325d`, `d7ca9215a9688a1a5806c6989b95c7c39e609daa`, `ce832f1369edbaeff10dd7c9937a2447ce14844f`, `7080b45934ba8b5e4fe621b4e0d071b5113d30c7`, `8eae9c96ce077bdb7d31cfa36c6748ac782830e5`. No PR yet.
 - **Implementation Notes:** Browser recording duration is decoded from the source blob. Existing trim percentages are normalized against decoded duration when re-rendering. Editor state version 2 identifies `decoded-audio`; server validation uses 5 ms for v2 and retains 1500 ms for legacy v1. Recorder stop events are isolated to their originating MediaRecorder/chunk list. A generation token invalidates pending microphone permission requests on reset and prevents overlapping startup/late streams from replacing the current session.
 
@@ -162,7 +162,7 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 
 ## 10. Testing & Verification
 - Owner-reported earlier checks: AudioWavPolicy PHP syntax/focused test, audio publish integration, atomic content-write, draft publish, draft media-recovery, and disposable fresh-install schema inspection.
-- This session: JavaScript parser checks passed for `audio-recorder.js` and `post-composer.js`. PHP 8.4 syntax checks and the focused `audio-wav-policy.php` suite passed in an isolated local runtime using the branch-fetched policy/test sources (exit code 0). The disposable-DB `draft-audio-publish-integration.php` and browser/device acceptance remain unrun because this session has no project database or browser runtime.
+- This session: JavaScript parser checks passed for `audio-recorder.js` and `post-composer.js`. PHP 8.4 syntax checks passed for isolated copies of the branch-fetched `AudioWavPolicy.php` and `audio-wav-policy.php`; the focused WAV-policy suite passed (exit code 0). This is not a full repository test run. The disposable-DB `draft-audio-publish-integration.php`, PHP syntax checks for every changed PHP file, and browser/device acceptance remain unrun because this session has no project checkout/database/browser runtime.
 - A clean clone attempt failed with exit code 128 because this environment could not resolve github.com. The local Kali/XAMPP runtime is not accessible from this session.
 - Required before PR: PHP syntax checks for all changed PHP files, disposable-database audio publish integration, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
 
@@ -170,9 +170,9 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Repository: `zayanfordesign/ZayanHardwareWebsite`
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
-- Latest plan commit before canonicalization: `cbf8c5864b5d109743acad84de3f2f737c91bd58`
-- Current branch comparison at latest verification: 70 commits ahead of main and 0 behind.
-- Latest verification commit: `8cf7b33b3ac6958b9ebd015497f88c7d45ceda3e` (PLAN verification update).
+- Branch head verified before this PLAN correction: `a4a55a29955ac43862335206769c1341cf224b75`.
+- Current branch comparison: 71 commits ahead of main and 0 behind.
+- This branch contains the audio recorder/trimming/publishing changes plus a small set of adjacent composer/schema/documentation edits; the complete diff still requires final scope review.
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
