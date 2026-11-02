@@ -37,7 +37,7 @@
 - [ ] Re-run PHP syntax checks for AudioWavPolicy and its focused test from the current branch checkout; prior owner-reported result is not independently reproducible in this session.
 - [ ] Re-run the WAV-policy test from the current branch checkout and capture its exit code.
 - [ ] Run audio publish integration covering original/rendered separation, metadata and rollback restoration on the disposable database; not verified in this session.
-- [ ] Run existing atomic content-write, draft publish and draft media-recovery integration tests on the disposable database; not verified in this session.
+- [x] Existing atomic content-write, draft publish and draft media-recovery integration tests passed in GitHub Actions on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11 (run 41475496144). This does not execute the new audio-specific publish integration.
 - [ ] Inspect the disposable fresh-install schema for the new audio columns and record the schema evidence; not verified in this session.
 - [ ] Run latest PHP/JavaScript syntax checks after the newest UI/recovery refinements.
 - [ ] Browser-test record, pause/resume, microphone permission/device loss, IndexedDB crash recovery, real trim/re-trim preview, upload retry and full publish.
@@ -176,21 +176,21 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 
 ## 10. Testing & Verification
 - Owner-reported earlier checks: AudioWavPolicy PHP syntax/focused test, audio publish integration, atomic content-write, draft publish, draft media-recovery, and disposable fresh-install schema inspection.
-- This session: JavaScript parser checks passed for `audio-recorder.js` and `post-composer.js`; after the stale-event guard change, `audio-recorder.js` parsed successfully and a source assertion confirmed the generation check precedes chunk persistence. PHP 8.4 syntax checks passed for isolated copies of the branch-fetched `AudioWavPolicy.php` and `audio-wav-policy.php`; the focused WAV-policy suite passed (exit code 0). This is not a full repository test run. A later rerun could not start because the temporary test workspace was no longer present. The disposable-DB `draft-audio-publish-integration.php`, PHP syntax checks for every changed PHP file, and browser/device acceptance remain unrun because this session has no project checkout/database/browser runtime.
+- GitHub Actions for PR #48: repository-wide PHP syntax check and JavaScript syntax check passed (run 41475496098); Graphify passed (run 41475496836); database fresh-install and existing integration suite passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11 (run 41475496144). The database workflow exercised existing draft publish, media recovery, and backup/restore checks. It does NOT invoke the new `tests/php/draft-audio-publish-integration.php` audio-specific test. The focused WAV-policy test previously passed in an isolated PHP 8.4 workspace (exit code 0), but that workspace was temporary and is no longer available for rerun. Browser/device acceptance remains unrun because this session has no browser/device runtime.
 - A clean clone attempt failed with exit code 128 because this environment could not resolve github.com. The local Kali/XAMPP runtime is not accessible from this session.
-- Required before merge (PR #48 opened as draft): PHP syntax checks for all changed PHP files, disposable-database audio publish integration, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
+- Required before merge (PR #48 opened as draft): disposable-database audio publish integration, browser/device acceptance, audio-specific draft revision conflict and pending-delete recovery, and complete detailed diff review. Repository-wide PHP and JavaScript syntax checks and the existing DB integration matrix have passed in GitHub Actions.
 
 ## 11. GitHub References
 - Repository: `zayanfordesign/ZayanHardwareWebsite`
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
-- Branch comparison after PLAN tracking update: 83 commits ahead of `main`, 0 behind; 23 changed files.
+- Latest branch comparison: 84 commits ahead of `main`, 0 behind; 23 changed files.
 - Draft PR: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48 (Audio recording, real trimming, and publishing).
-- PR head at creation: `c6d3a9992aaa50d3f902fb7b8ee7798b271e22fc`; PLAN tracking commit is added on the same PR branch.
-- GitHub reports `mergeable=true`, `mergeable_state=unstable`; no CI workflow runs or commit statuses are recorded for this head.
-- PR remains draft because required integration/browser acceptance and full changed-file PHP syntax checks are not complete.
+- Latest PR head: `7177b2e8d6d8fd12e26ef4bb0d2b22c0603e2d4a`.
+- GitHub reports `mergeable=true`, `mergeable_state=clean`. GitHub Actions PHP/JS lint, Graphify, and DB matrix completed successfully; no additional commit statuses were reported.
+- PR remains draft because audio-specific publish integration, browser/device acceptance, audio-specific revision/pending-delete recovery, and complete detailed diff review are not complete.
 - Source review confirmed the publishing service requires a single audio item in audio mode, checks rendered WAV format and duration against versioned editor state, moves original and rendered files separately, and restores moved files after confirmed pre-commit rollback. Runtime/database verification remains outstanding.
 
 ## 12. Next Priority
 - Database handoff evidence: owner supplied a partial SQL dump excerpt confirming populated `users`, `user_device_specializations`, `post_drafts`, `post_draft_media`, `issues` indexes/constraints, and retention-related triggers. Owner clarified the shown accounts are test accounts. The excerpt does not include the `CREATE TABLE issues` column list or `app_migration_ledger` rows, so it cannot establish whether migration 020 is already applied; do not infer schema state from indexes alone.
-PR #48 is open as a draft. Next: complete the missing disposable-database integration tests, all changed-PHP syntax checks, browser/device acceptance and full diff review. Then convert the PR from draft and merge only after all gates pass. Separately inspect the live target schema and verify a complete restore-tested backup before applying migration 020 to `zayan_hardware_clean_20261031`.
+PR #48 is open as a draft. Next: run `draft-audio-publish-integration.php` against the disposable test DB, exercise browser/device and audio-specific revision/pending-delete recovery, and finish detailed diff review. Then convert PR #48 from draft and merge only after these gates pass. Separately inspect the live target schema and verify a complete restore-tested backup before applying migration 020 to `zayan_hardware_clean_20261031`.
