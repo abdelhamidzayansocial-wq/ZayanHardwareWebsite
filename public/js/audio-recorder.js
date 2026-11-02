@@ -226,6 +226,7 @@
             recorder.addEventListener('stop', async function () {
                 await Promise.allSettled(chunkWrites);
                 cancelAnimationFrame(animation);
+                if (levelMeter) levelMeter.value = 0;
                 clearInterval(timer);
                 durationMs = Math.max(0, elapsedBeforeCurrentRun);
                 const blob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'audio/webm' });
@@ -285,6 +286,7 @@
         recorder.pause();
         paused = true;
         cancelAnimationFrame(animation);
+        if (levelMeter) levelMeter.value = 0;
         clearInterval(timer);
         updateClock();
         setRecordingUi('paused');
@@ -355,7 +357,6 @@
         const restoredPreview = item.renderedBlob || (item.rendered ? item.url : (item.original_url || item.url));
         setPreview(restoredPreview);
         previewIsTrimmed = Boolean(item.renderedBlob || item.rendered);
-        if (previewIsTrimmed) statusLabel.textContent = 'تم اعتماد نسخة WAV المقصوصة';
         const meta = window.ZayanComposer.getAudioMeta ? window.ZayanComposer.getAudioMeta() : null;
         durationMs = Number(meta?.duration_ms || item.duration_ms || 0);
         currentTrimStart = Number(meta?.trim_start_ms || 0);
@@ -372,6 +373,7 @@
             });
         }
         setRecordingUi('preview');
+        if (previewIsTrimmed) statusLabel.textContent = 'تم اعتماد نسخة WAV المقصوصة';
     }
 
     async function createTrimmedWav(sourceBlob, startMs, endMs) {
