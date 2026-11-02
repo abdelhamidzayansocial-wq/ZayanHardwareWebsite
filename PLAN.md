@@ -171,8 +171,8 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Latest plan commit before canonicalization: `cbf8c5864b5d109743acad84de3f2f737c91bd58`
-- Current branch comparison at this review: 63 commits ahead of main and 0 behind.
-- Latest verified branch head: `ce832f1369edbaeff10dd7c9937a2447ce14844f`.
+- Current branch comparison before this plan refresh: 64 commits ahead of main and 0 behind; this documentation commit adds one more.
+- Latest verified branch head before this plan refresh: `04926334da4b28e71f966515e6acdbb3ca971690`.
 - No open PR; no CI status checks were recorded for the current branch head.
 
 ## 12. Next Priority
