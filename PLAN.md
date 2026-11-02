@@ -177,16 +177,18 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - Owner-reported earlier checks: AudioWavPolicy PHP syntax/focused test, audio publish integration, atomic content-write, draft publish, draft media-recovery, and disposable fresh-install schema inspection.
 - This session: JavaScript parser checks passed for `audio-recorder.js` and `post-composer.js`; after the stale-event guard change, `audio-recorder.js` parsed successfully and a source assertion confirmed the generation check precedes chunk persistence. PHP 8.4 syntax checks passed for isolated copies of the branch-fetched `AudioWavPolicy.php` and `audio-wav-policy.php`; the focused WAV-policy suite passed (exit code 0). This is not a full repository test run. A later rerun could not start because the temporary test workspace was no longer present. The disposable-DB `draft-audio-publish-integration.php`, PHP syntax checks for every changed PHP file, and browser/device acceptance remain unrun because this session has no project checkout/database/browser runtime.
 - A clean clone attempt failed with exit code 128 because this environment could not resolve github.com. The local Kali/XAMPP runtime is not accessible from this session.
-- Required before PR: PHP syntax checks for all changed PHP files, disposable-database audio publish integration, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
+- Required before merge (PR #48 opened as draft): PHP syntax checks for all changed PHP files, disposable-database audio publish integration, browser/device acceptance, draft revision conflict and pending-delete recovery, and complete diff review.
 
 ## 11. GitHub References
 - Repository: `zayanfordesign/ZayanHardwareWebsite`
 - Active branch: `feature/post-audio-real-trimming`
 - Base: `main` at `0d9a2f15645055d958adf583de284c97634d1eb7`
-- Branch comparison: ahead of `main` and 0 commits behind. Read the live GitHub compare before PR creation because each tracking commit advances this branch.
-- This branch contains the audio recorder/trimming/publishing changes plus a small set of adjacent composer/schema/documentation edits; the complete diff still requires final scope review.
-- No open PR; no CI status checks were recorded for the current branch head.
+- Branch comparison at PR creation: 82 commits ahead of `main`, 0 behind; 23 changed files.
+- Draft PR: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/48 (Audio recording, real trimming, and publishing).
+- PR head: `c6d3a9992aaa50d3f902fb7b8ee7798b271e22fc`.
+- GitHub reports `mergeable=true`, `mergeable_state=unstable`; no CI workflow runs or commit statuses are recorded for this head.
+- PR remains draft because required integration/browser acceptance and full changed-file PHP syntax checks are not complete.
 
 ## 12. Next Priority
 - Database handoff evidence: owner supplied a partial SQL dump excerpt confirming populated `users`, `user_device_specializations`, `post_drafts`, `post_draft_media`, `issues` indexes/constraints, and retention-related triggers. Owner clarified the shown accounts are test accounts. The excerpt does not include the `CREATE TABLE issues` column list or `app_migration_ledger` rows, so it cannot establish whether migration 020 is already applied; do not infer schema state from indexes alone.
-Continue audio acceptance on a disposable test database first. The supplied target export indicates the three original-audio columns are missing, so migration 020 is the likely required forward change, subject to read-only verification against the live target and a complete restore-tested backup. Then finish browser/device acceptance, review the complete audio/composer diff, and only apply the migration after the owner approves the exact reviewed SQL.
+PR #48 is open as a draft. Next: complete the missing disposable-database integration tests, all changed-PHP syntax checks, browser/device acceptance and full diff review. Then convert the PR from draft and merge only after all gates pass. Separately inspect the live target schema and verify a complete restore-tested backup before applying migration 020 to `zayan_hardware_clean_20261031`.
