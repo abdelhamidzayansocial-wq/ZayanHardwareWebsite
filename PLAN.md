@@ -143,6 +143,17 @@ Zayan Hardware is a PHP/MySQL web application for hardware/device knowledge post
 - **Implementation Notes:** Avoid caching private draft media or authenticated responses in shared caches.
 
 ## 6. Bugs & Technical Debt
+### AUD-REV-002 — Close waveform decoder on every exit path
+- **Description:** Ensure the temporary AudioContext used to rebuild a waveform from a restored audio blob is closed after both successful decoding and decoding failures.
+- **Priority:** LOW
+- **State:** COMPLETED
+- **Acceptance Criteria:** AudioContext cleanup runs in a finally block; decode failures retain the existing waveform fallback; JavaScript parses successfully.
+- **Dependencies:** None.
+- **Affected Files:** `public/js/audio-recorder.js`.
+- **Test Results:** JavaScript parser check passed using the exact GitHub branch source; source assertions confirmed the decoder is closed in finally and no longer only on the success path.
+- **Commit/PR:** `e11633fb81bdbc9a91a3e9fadfe76f5f37fcff8c`; no PR yet.
+- **Implementation Notes:** Moved temporary AudioContext creation outside the try body and close it in finally, guarded against an already-closed context.
+
 - **AUD-REV-001:** Previously broad 1500 ms publish-time duration tolerance. Version-2 decoded trim metadata now uses 5 ms; legacy version-1 remains at 1500 ms for compatibility until legacy draft behavior is separately reviewed.
 - Runtime/browser acceptance for recording pause/resume, permission denial, device loss, IndexedDB recovery, upload retry, revision conflicts, pending-delete recovery, and complete publishing remains outstanding.
 
