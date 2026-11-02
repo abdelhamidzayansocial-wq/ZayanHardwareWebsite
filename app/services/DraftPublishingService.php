@@ -245,7 +245,11 @@ final class DraftPublishingService
                         || (int) ($audioEditorState['source_duration_ms'] ?? -1) !== $sourceDuration) {
                         throw new \DomainException('draft_audio_trim_not_confirmed');
                     }
-                    if (abs(($trimEnd - $trimStart) - $renderedMeta['duration_ms']) > 1500) {
+                    $durationToleranceMs = (int) ($audioEditorState['version'] ?? 1) >= 2
+                        && ($audioEditorState['source_duration_basis'] ?? null) === 'decoded-audio'
+                        ? 5
+                        : 1500;
+                    if (abs(($trimEnd - $trimStart) - $renderedMeta['duration_ms']) > $durationToleranceMs) {
                         throw new \DomainException('draft_audio_render_duration_mismatch');
                     }
                     $audioUpdate->execute([
