@@ -62,7 +62,7 @@
 - **Dependencies:** None.
 - **Affected Files:** `PLAN.md`.
 - **Test Results:** Structural source review pending after commit.
-- **Commit/PR:** Current branch; PR not yet opened.
+- **Commit/PR:** Current branch; PR #49 is open as draft.
 - **Implementation Notes:** This file is the authoritative project task ledger.
 
 ## 5. Backlog
@@ -122,7 +122,7 @@
 - Canonical GitHub repository: `zayanfordesign/ZayanHardwareWebsite` (explicit owner confirmation on 2026-11-02).
 - Official local folder, per owner: `/opt/lampp/htdocs/zayan_hardware`.
 - Canonical database name requested by owner: `zayanhardware_db`.
-- New work starts from latest `main) on a dedicated branch; do not work directly on `main`.
+- New work starts from latest `main` on a dedicated branch; do not work directly on `main`.
 - Never overwrite owner-local changes or delete workspace folders before inventory, reconciliation, and verified archive.
 - Keep secrets in local environment only; commit only safe templates.
 - No destructive DB operations, migrations, or production-data writes as part of this consolidation.
@@ -140,8 +140,8 @@
 - Main baseline: `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Working branch: `chore/repository-db-name-consolidation`
 - Previous audio feature PR #48 remains separate and must not be mixed into this consolidation.
-- PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 (open, draft; head `e8c98fe924b8e9f2dff9bf63cf486f8adea41f09`).
-- Merge status: not merged; mergeability currently reported false by GitHub.
+- PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 (open, draft).
+- Merge status: not merged; latest GitHub check reports mergeable=true.
 
 ## 12. Next Priority
 
