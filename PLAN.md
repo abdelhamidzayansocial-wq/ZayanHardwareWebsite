@@ -39,7 +39,7 @@
 - **Dependencies:** Browser/device acceptance; restore-tested disposable DB; review of migration policy and Actions budget.
 - **Affected Files:** `.github/workflows/database-migrations.yml`, `app/controllers/DraftController.php`, `app/controllers/IssueController.php`, `app/models/PostDraft.php`, `app/services/AudioWavPolicy.php`, `app/services/DraftPublishingService.php`, `app/views/issues/create.php`, `database/fresh_install.sql`, `database/migrations/020_audio_original_and_rendered_files.sql`, `public/css/post-composer.css`, `public/js/audio-recorder.js`, `public/js/post-composer.js`, and focused PHP tests/docs.
 - **Test Results:** Historical CI on the original PR #48 head reported PHP/JS syntax, Graphify, and database matrix success (MySQL 8.0, MariaDB 10.4.32, MariaDB 10.11). Those runs predate the current main baseline and do not verify this integration commit. No tests or Actions were run for this integration branch.
-- **Commit/PR:** Integration merge commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`; branch `integration/audio-feature-merge-20261103`; source PR #48.
+- **Commit/PR:** Integration merge commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`; PR #51 merged into `main` as `7437b190335dc4bffba3d6a542b0372a4e85dbca`; source PR #48 also marked merged.
 - **Implementation Notes:** The GitHub merge API rejected PR #48 because of conflicts. A merge commit was assembled on a dedicated branch with current main as first parent and the audio feature head as second parent. Feature code/schema/docs were overlaid while preserving PR #49's canonical DB config and docs; the duplicate lowercase `plan.md` was not carried over. The historical migration file remains under `database/migrations/020_...` despite the current managed-migration guidance and must be reconciled before applying it to any database.
 
 
@@ -151,8 +151,8 @@
 - Main baseline: `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Working branch: `chore/repository-db-name-consolidation`
 - PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 — merged as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
-- PR #48 (audio recording/trimming): source was integrated on `integration/audio-feature-merge-20261103` as merge commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`. The original PR remains open; this integration is not yet merged to `main`.
+- PR #48 (audio recording/trimming): source was integrated on `integration/audio-feature-merge-20261103` as merge commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`. PR #51 merged the integration branch into `main` as `7437b190335dc4bffba3d6a542b0372a4e85dbca` on 2026-11-03. GitHub also marks source PR #48 merged through the second parent commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`.
 
 ## 12. Next Priority
 
-Review and merge the audio integration branch to `main` after inspecting its 18-file diff; then run the focused PHP/JavaScript and disposable-DB tests plus browser/device acceptance. Resolve the migration-placement discrepancy before any database DDL. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
+Run focused PHP/JavaScript and disposable-DB tests against the merged `main` baseline, complete browser/device acceptance, and reconcile migration placement with managed-migration policy before any database DDL. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
