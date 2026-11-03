@@ -506,7 +506,7 @@
         markDirty();
     }
 
-    async function removeMedia(item) {
+    async function removeMedia(item, suppressAudioRemovedEvent) {
         // Queue the deletion with the next draft save. This keeps all revision
         // mutations in one serialized sync pipeline and remains safe offline.
         if (item.media_uuid) pendingDeletes.add(item.media_uuid);
@@ -519,7 +519,9 @@
         if (item.local_id) await dbDelete('media', draftId + ':' + item.local_id).catch(function () {});
         if (item.media_kind === 'audio') {
             audioMeta = null;
-            window.dispatchEvent(new CustomEvent('zayan-audio-removed'));
+            if (!suppressAudioRemovedEvent) {
+                window.dispatchEvent(new CustomEvent('zayan-audio-removed'));
+            }
         }
         renderMedia();
         markDirty();
@@ -618,7 +620,11 @@
                 const renderedData = new FormData();
                 renderedData.append('_token', csrf);
                 renderedData.append('revision', String(revision));
-                renderedData.append('rendered', item.renderedBlob, 'edited-image.webp');
+                renderedData.append(
+                    'rendered',
+                    item.renderedBlob,
+                    item.media_kind === 'audio' ? 'trimmed-audio.wav' : 'edited-image.webp'
+                );
                 const renderedResponse = await fetch(
                     mediaBase + '/' + encodeURIComponent(draftId) + '/media/' + encodeURIComponent(item.media_uuid) + '/rendered',
                     { method: 'POST', body: renderedData, credentials: 'same-origin', headers: { 'Accept': 'application/json' } }
@@ -632,6 +638,10 @@
                 item.renderedBlob = null;
                 item.needsRender = false;
                 item.rendered = true;
+                if (item.media_kind === 'audio' && audioMeta) {
+                    audioMeta.rendered_duration_ms = Number(renderedResult.duration_ms || 0);
+                    audioMeta.rendered_mime_type = renderedResult.mime_type || 'audio/wav';
+                }
             }
             const body = new URLSearchParams({
                 _token: csrf,
@@ -1059,6 +1069,10 @@
             setStatus('سجّل مقطعًا صوتيًا قبل النشر.', 'error');
             return;
         }
+        if (getMode() === 'audio' && !window.ZayanComposer.isAudioTrimApplied()) {
+            setStatus('اعتمد القص الصوتي أولًا حتى ننشر ملف WAV المقصوص فعلًا.', 'error');
+            return;
+        }
         if (getMode() === 'text' && detailsInput.value.trim().length < 10) {
             if (detailsEditor) detailsEditor.focus();
             else detailsInput.focus();
@@ -1096,14 +1110,17 @@
         revisionInput.value = String(revision);
         applyPayload(data.payload || {});
         const serverMedia = (data.media || []).map(function (item) {
-            return Object.assign({}, item, { blob: null, local_id: item.media_uuid, uploaded: true });
+            return Object.assign({}, item, { blob: null, local_id: item.media_uuid, uploaded: true, rendered: Boolean(item.url && item.original_url && item.url !== item.original_url) });
         });
         media = serverMedia;
         renderMedia();
     }
 
     async function recoverPendingAudio(server) {
-        if (server && (server.media || []).some(function (item) { return item.media_kind === 'audio'; })) return;
+        if (server && (server.media || []).some(function (item) { return item.media_kind === 'audio'; })) {
+            await clearAudioSession();
+            return;
+        }
         const pending = await pendingAudioSession().catch(function () { return null; });
         if (!pending || !pending.blob || !pending.blob.size) return;
         const audioRadio = modeRadios.find(function (item) { return item.value === 'audio'; });
@@ -1242,9 +1259,13 @@
     });
 
     window.ZayanComposer = {
-        addAudioBlob: async function (blob, durationMs, trimStartMs, trimEndMs, waveform) {
+        addAudioBlob: async function (blob, durationMs, trimStartMs, trimEndMs, waveform, isCurrentSession) {
+            const isCurrent = function () {
+                return typeof isCurrentSession !== 'function' || isCurrentSession();
+            };
             const existing = media.find(function (item) { return item.media_kind === 'audio'; });
-            if (existing) await removeMedia(existing);
+            if (existing) await removeMedia(existing, true);
+            if (!isCurrent()) return null;
             const item = {
                 local_id: uuid(),
                 media_uuid: '',
@@ -1265,6 +1286,10 @@
             };
             media.push(item);
             await persistBlob(item);
+            if (!isCurrent()) {
+                if (media.includes(item)) await removeMedia(item);
+                return null;
+            }
             await clearAudioSession();
             markDirty();
             await syncServer(false);
@@ -1276,6 +1301,34 @@
             audioMeta = null;
             await clearAudioSession();
             markDirty();
+        },
+        setAudioRenderedBlob: async function (blob, trimStartMs, trimEndMs, sourceDurationMs) {
+            const item = media.find(function (entry) { return entry.media_kind === 'audio'; });
+            if (!item || !blob || blob.type !== 'audio/wav') throw new Error('تعذر اعتماد ملف الصوت المقصوص.');
+            if (item.url && item.url.startsWith('blob:')) URL.revokeObjectURL(item.url);
+            item.renderedBlob = blob;
+            item.url = URL.createObjectURL(blob);
+            item.dirtyEditor = true;
+            item.needsRender = false;
+            item.editor_state = {
+                version: 2,
+                kind: 'audio-trim',
+                source_duration_basis: 'decoded-audio',
+                trim_start_ms: Math.round(trimStartMs),
+                trim_end_ms: Math.round(trimEndMs),
+                source_duration_ms: Math.round(sourceDurationMs)
+            };
+            audioMeta = Object.assign({}, audioMeta || {}, {
+                duration_ms: sourceDurationMs,
+                trim_start_ms: trimStartMs,
+                trim_end_ms: trimEndMs,
+                rendered_duration_ms: Math.max(0, trimEndMs - trimStartMs),
+                rendered_mime_type: 'audio/wav'
+            });
+            await persistBlob(item);
+            markDirty();
+            await syncServer(false);
+            return true;
         },
         updateAudioTrim: function (startMs, endMs, durationMs) {
             audioMeta = Object.assign({}, audioMeta || {}, { duration_ms: durationMs, trim_start_ms: startMs, trim_end_ms: endMs });
@@ -1310,6 +1363,13 @@
         clearAudioSession: clearAudioSession,
         getAudio: function () { return media.find(function (item) { return item.media_kind === 'audio'; }) || null; },
         getAudioMeta: function () { return audioMeta; },
+        isAudioTrimApplied: function () {
+            const item = media.find(function (entry) { return entry.media_kind === 'audio'; });
+            const state = item && item.editor_state;
+            return Boolean(item && (item.rendered || item.renderedBlob) && state && state.kind === 'audio-trim'
+                && Number(state.trim_start_ms) === Number(audioMeta?.trim_start_ms || 0)
+                && Number(state.trim_end_ms) === Number(audioMeta?.trim_end_ms || 0));
+        },
         getDraftId: function () { return draftId; },
         saveImageEditorDraft: function (item, state) {
             item.editor_state = state;

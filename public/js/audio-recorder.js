@@ -16,11 +16,15 @@
     const trimStart = root.querySelector('[data-trim-start]');
     const trimEnd = root.querySelector('[data-trim-end]');
     const errorLabel = root.querySelector('[data-audio-error]');
+    const applyTrimButton = root.querySelector('[data-audio-apply-trim]');
+    const deviceSelect = root.querySelector('[data-audio-device]');
+    const levelMeter = root.querySelector('[data-audio-level]');
     const context = wave.getContext('2d');
 
     let recorder = null;
     let stream = null;
     let chunks = [];
+    let recordingGeneration = 0;
     let audioContext = null;
     let analyser = null;
     let sourceNode = null;
@@ -32,6 +36,7 @@
     let durationMs = 0;
     let currentWaveform = [];
     let previewUrl = '';
+    let previewIsTrimmed = false;
     let currentTrimStart = 0;
     let currentTrimEnd = 0;
 
@@ -97,6 +102,12 @@
         const samples = new Uint8Array(analyser.fftSize);
         const values = [];
         analyser.getByteTimeDomainData(samples);
+        let squareTotal = 0;
+        for (let i = 0; i < samples.length; i++) {
+            const normalized = (samples[i] - 128) / 128;
+            squareTotal += normalized * normalized;
+        }
+        if (levelMeter) levelMeter.value = Math.min(1, Math.sqrt(squareTotal / samples.length) * 3.2);
         const bucketSize = Math.floor(samples.length / 52);
         for (let i = 0; i < 52; i++) {
             let total = 0;
@@ -111,10 +122,10 @@
     }
 
     async function makeWaveform(blob) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return currentWaveform;
+        const temp = new AudioContextClass();
         try {
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextClass) return currentWaveform;
-            const temp = new AudioContextClass();
             const buffer = await temp.decodeAudioData(await blob.arrayBuffer());
             const data = buffer.getChannelData(0);
             const bars = 64;
@@ -127,11 +138,47 @@
                 }
                 values.push(Math.max(0.08, max));
             }
-            await temp.close();
             return values;
         } catch (_) {
             return currentWaveform.length ? currentWaveform : [];
+        } finally {
+            if (temp.state !== 'closed') await temp.close().catch(function () {});
         }
+    }
+
+    async function readDecodedDurationMs(blob) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return 0;
+        const decoder = new AudioContextClass();
+        try {
+            const decoded = await decoder.decodeAudioData(await blob.arrayBuffer());
+            return Math.max(0, Math.round(decoded.duration * 1000));
+        } finally {
+            await decoder.close().catch(function () {});
+        }
+    }
+
+    async function refreshMicrophones() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !deviceSelect) return;
+        try {
+            const devices = (await navigator.mediaDevices.enumerateDevices()).filter(function (device) {
+                return device.kind === 'audioinput';
+            });
+            const selected = deviceSelect.value;
+            deviceSelect.replaceChildren();
+            const fallback = document.createElement('option');
+            fallback.value = '';
+            fallback.textContent = 'الميكروفون الافتراضي';
+            deviceSelect.appendChild(fallback);
+            devices.forEach(function (device, index) {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.textContent = device.label || ('ميكروفون ' + (index + 1));
+                deviceSelect.appendChild(option);
+            });
+            deviceSelect.value = devices.some(function (device) { return device.deviceId === selected; }) ? selected : '';
+            deviceSelect.hidden = devices.length <= 1;
+        } catch (_) {}
     }
 
     async function startRecording() {
@@ -144,20 +191,39 @@
             setError('تعذر تجهيز المسودة. حدّث الصفحة وحاول مرة أخرى.');
             return;
         }
+        const sessionId = ++recordingGeneration;
         try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-            });
+            const audioConstraints = {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            };
+            if (deviceSelect && deviceSelect.value) audioConstraints.deviceId = { exact: deviceSelect.value };
+            const acquiredStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+            if (sessionId !== recordingGeneration) {
+                acquiredStream.getTracks().forEach(function (track) { track.stop(); });
+                return;
+            }
+            stream = acquiredStream;
+            await refreshMicrophones();
+            if (sessionId !== recordingGeneration) {
+                acquiredStream.getTracks().forEach(function (track) { track.stop(); });
+                if (stream === acquiredStream) stream = null;
+                return;
+            }
             const mimeCandidates = [
                 'audio/webm;codecs=opus',
-                'audio/ogg;codecs=opus',
                 'audio/mp4',
+                'audio/ogg;codecs=opus',
                 'audio/webm'
             ];
             const mimeType = mimeCandidates.find(function (mime) {
                 return MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime);
             });
-            recorder = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream);
+            recorder = mimeType ? new MediaRecorder(acquiredStream, { mimeType: mimeType }) : new MediaRecorder(acquiredStream);
+            const activeRecorder = recorder;
+            const activeMimeType = activeRecorder.mimeType || mimeType || 'audio/webm';
+            const recordingChunks = [];
             chunks = [];
             elapsedBeforeCurrentRun = 0;
             recordingStartedAt = performance.now();
@@ -174,29 +240,41 @@
             }
 
             const chunkWrites = [];
-            recorder.addEventListener('dataavailable', function (event) {
+            activeRecorder.addEventListener('dataavailable', function (event) {
+                // A reset/delete can invalidate this recorder before its queued
+                // final dataavailable event runs. Never persist stale chunks into
+                // the next draft audio session.
+                if (sessionId !== recordingGeneration) return;
                 if (event.data && event.data.size > 0) {
+                    recordingChunks.push(event.data);
                     chunks.push(event.data);
                     if (window.ZayanComposer && window.ZayanComposer.saveAudioChunk) {
-                        chunkWrites.push(window.ZayanComposer.saveAudioChunk(event.data, recorder.mimeType || mimeType));
+                        chunkWrites.push(window.ZayanComposer.saveAudioChunk(event.data, activeMimeType));
                     }
                 }
                 if (window.ZayanComposer && window.ZayanComposer.saveAudioProgress) {
-                    window.ZayanComposer.saveAudioProgress(currentElapsed(), recorder.mimeType || mimeType).catch(function () {});
+                    window.ZayanComposer.saveAudioProgress(currentElapsed(), activeMimeType).catch(function () {});
                 }
             });
-            recorder.addEventListener('stop', async function () {
+            activeRecorder.addEventListener('stop', async function () {
                 await Promise.allSettled(chunkWrites);
+                if (sessionId !== recordingGeneration) return;
                 cancelAnimationFrame(animation);
+                if (levelMeter) levelMeter.value = 0;
                 clearInterval(timer);
                 durationMs = Math.max(0, elapsedBeforeCurrentRun);
-                const blob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'audio/webm' });
+                const blob = new Blob(recordingChunks, { type: activeMimeType });
                 if (!blob.size) {
                     setError('التسجيل فارغ. حاول مرة أخرى.');
                     resetRecorder(false);
                     return;
                 }
+                try { durationMs = await readDecodedDurationMs(blob) || durationMs; } catch (_) {}
+                // Reset/delete may happen while browser decoding is pending.
+                // Re-check the originating session before any stale result reaches the draft.
+                if (sessionId !== recordingGeneration) return;
                 currentWaveform = await makeWaveform(blob);
+                if (sessionId !== recordingGeneration) return;
                 drawBars(currentWaveform);
                 currentTrimStart = 0;
                 currentTrimEnd = durationMs;
@@ -207,8 +285,13 @@
                 setPreview(blob);
                 setRecordingUi('preview');
                 if (window.ZayanComposer) {
-                    await window.ZayanComposer.addAudioBlob(blob, durationMs, 0, durationMs, currentWaveform);
+                    const added = await window.ZayanComposer.addAudioBlob(
+                        blob, durationMs, 0, durationMs, currentWaveform,
+                        function () { return sessionId === recordingGeneration; }
+                    );
+                    if (!added || sessionId !== recordingGeneration) return;
                     await window.ZayanComposer.clearAudioSession();
+                    if (sessionId !== recordingGeneration) return;
                 }
                 if (audioContext && audioContext.state !== 'closed') await audioContext.close().catch(function () {});
                 audioContext = null;
@@ -216,14 +299,29 @@
                 sourceNode = null;
                 stopTracks();
             });
-            recorder.start(1000);
+            stream.getAudioTracks().forEach(function (track) {
+                track.addEventListener('ended', function () {
+                    if (sessionId !== recordingGeneration || activeRecorder.state === 'inactive') return;
+                    if (activeRecorder.state === 'recording') elapsedBeforeCurrentRun += performance.now() - recordingStartedAt;
+                    clearInterval(timer);
+                    setError('انقطع اتصال الميكروفون. احتفظنا بالجزء المسجل؛ افحص الجهاز ثم أكمل.');
+                    activeRecorder.stop();
+                }, { once: true });
+            });
+            activeRecorder.start(1000);
             timer = window.setInterval(updateClock, 200);
             setRecordingUi('recording');
         } catch (error) {
+            if (sessionId !== recordingGeneration) return;
             stopTracks();
-            setError(error && error.name === 'NotAllowedError'
+            const message = error && error.name === 'NotAllowedError'
                 ? 'اسمح باستخدام الميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.'
-                : 'تعذر بدء التسجيل. تأكد من اتصال الميكروفون وجرب مرة أخرى.');
+                : error && error.name === 'NotFoundError'
+                    ? 'لم يتم العثور على ميكروفون متصل بالجهاز.'
+                    : error && error.name === 'NotReadableError'
+                        ? 'الميكروفون مستخدم في تطبيق آخر أو تعذر الوصول إليه.'
+                        : 'تعذر بدء التسجيل. تأكد من اتصال الميكروفون وجرب مرة أخرى.';
+            setError(message);
         }
     }
 
@@ -233,6 +331,7 @@
         recorder.pause();
         paused = true;
         cancelAnimationFrame(animation);
+        if (levelMeter) levelMeter.value = 0;
         clearInterval(timer);
         updateClock();
         setRecordingUi('paused');
@@ -263,9 +362,11 @@
             preview.src = previewUrl;
         }
         preview.hidden = false;
+        previewIsTrimmed = false;
     }
 
     function resetRecorder(removeFromDraft) {
+        recordingGeneration += 1;
         cancelAnimationFrame(animation);
         clearInterval(timer);
         if (recorder && recorder.state !== 'inactive') {
@@ -284,10 +385,12 @@
         currentTrimEnd = 0;
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         previewUrl = '';
+        previewIsTrimmed = false;
         preview.removeAttribute('src');
         preview.load();
         timeLabel.textContent = '00:00';
         drawBars([]);
+        if (levelMeter) levelMeter.value = 0;
         trimStart.value = '0';
         trimEnd.value = '100';
         setRecordingUi('ready');
@@ -297,7 +400,9 @@
     function bindExistingAudio() {
         const item = window.ZayanComposer ? window.ZayanComposer.getAudio() : null;
         if (!item) return;
-        setPreview(item.url);
+        const restoredPreview = item.renderedBlob || (item.rendered ? item.url : (item.original_url || item.url));
+        setPreview(restoredPreview);
+        previewIsTrimmed = Boolean(item.renderedBlob || item.rendered);
         const meta = window.ZayanComposer.getAudioMeta ? window.ZayanComposer.getAudioMeta() : null;
         durationMs = Number(meta?.duration_ms || item.duration_ms || 0);
         currentTrimStart = Number(meta?.trim_start_ms || 0);
@@ -314,6 +419,104 @@
             });
         }
         setRecordingUi('preview');
+        if (previewIsTrimmed) statusLabel.textContent = 'تم اعتماد نسخة WAV المقصوصة';
+    }
+
+    async function createTrimmedWav(sourceBlob, startMs, endMs, recordedDurationMs) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) throw new Error('المتصفح لا يدعم معالجة الصوت المطلوبة.');
+        const decoder = new AudioContextClass();
+        try {
+            const decoded = await decoder.decodeAudioData(await sourceBlob.arrayBuffer());
+            const sampleRate = 16000;
+            const decodedDurationMs = Math.max(1, Math.round(decoded.duration * 1000));
+            const scale = decodedDurationMs / Math.max(1, recordedDurationMs || decodedDurationMs);
+            const actualStartMs = Math.max(0, Math.min(decodedDurationMs, startMs * scale));
+            const actualEndMs = Math.max(actualStartMs, Math.min(decodedDurationMs, endMs * scale));
+            const startFrame = Math.max(0, Math.floor(actualStartMs / 1000 * decoded.sampleRate));
+            const endFrame = Math.min(decoded.length, Math.ceil(actualEndMs / 1000 * decoded.sampleRate));
+            if (endFrame <= startFrame) throw new Error('حدد جزءًا صالحًا من التسجيل.');
+            const outputLength = Math.floor((endFrame - startFrame) * sampleRate / decoded.sampleRate);
+            if (outputLength < 1600) throw new Error('مدة التسجيل بعد القص قصيرة جدًا.');
+            const output = new ArrayBuffer(44 + outputLength * 2);
+            const view = new DataView(output);
+            const writeText = function (offset, value) {
+                for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i));
+            };
+            writeText(0, 'RIFF');
+            view.setUint32(4, 36 + outputLength * 2, true);
+            writeText(8, 'WAVE');
+            writeText(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeText(36, 'data');
+            view.setUint32(40, outputLength * 2, true);
+
+            const channels = [];
+            for (let channel = 0; channel < decoded.numberOfChannels; channel++) {
+                channels.push(decoded.getChannelData(channel));
+            }
+            for (let i = 0; i < outputLength; i++) {
+                const sourcePosition = startFrame + i * decoded.sampleRate / sampleRate;
+                const left = Math.floor(sourcePosition);
+                const fraction = sourcePosition - left;
+                let sample = 0;
+                for (let channel = 0; channel < channels.length; channel++) {
+                    const data = channels[channel];
+                    const first = data[Math.min(left, endFrame - 1)] || 0;
+                    const second = data[Math.min(left + 1, endFrame - 1)] || 0;
+                    sample += first + (second - first) * fraction;
+                }
+                sample /= channels.length;
+                sample = Math.max(-1, Math.min(1, sample));
+                view.setInt16(44 + i * 2, sample < 0 ? sample * 32768 : sample * 32767, true);
+            }
+            return {
+                blob: new Blob([output], { type: 'audio/wav' }),
+                sourceDurationMs: decodedDurationMs,
+                trimStartMs: Math.round(actualStartMs),
+                trimEndMs: Math.round(actualEndMs)
+            };
+        } finally {
+            await decoder.close().catch(function () {});
+        }
+    }
+
+    async function applyRealTrim() {
+        const item = window.ZayanComposer ? window.ZayanComposer.getAudio() : null;
+        if (!item) {
+            setError('لا يوجد تسجيل لحفظه.');
+            return;
+        }
+        applyTrimButton.disabled = true;
+        setError('');
+        try {
+            let original = item.blob;
+            if (!original) {
+                const response = await fetch(item.original_url || item.url, { credentials: 'same-origin' });
+                if (!response.ok) throw new Error('تعذر تحميل التسجيل الأصلي للقص.');
+                original = await response.blob();
+            }
+            const rendered = await createTrimmedWav(original, currentTrimStart, currentTrimEnd, durationMs);
+            durationMs = rendered.sourceDurationMs;
+            currentTrimStart = rendered.trimStartMs;
+            currentTrimEnd = rendered.trimEndMs;
+            setPreview(rendered.blob);
+            previewIsTrimmed = true;
+            preview.currentTime = 0;
+            preview.load();
+            await window.ZayanComposer.setAudioRenderedBlob(rendered.blob, currentTrimStart, currentTrimEnd, durationMs);
+            statusLabel.textContent = 'تم إنشاء نسخة WAV مقصوصة فعليًا';
+        } catch (error) {
+            setError(error.message || 'تعذر إنشاء النسخة المقصوصة.');
+        } finally {
+            applyTrimButton.disabled = false;
+        }
     }
 
     function updateTrim() {
@@ -324,8 +527,12 @@
         currentTrimEnd = Math.round(durationMs * Number(trimEnd.value) / 100);
         if (currentTrimEnd <= currentTrimStart) currentTrimEnd = Math.min(durationMs, currentTrimStart + 100);
         window.ZayanComposer?.updateAudioTrim(currentTrimStart, currentTrimEnd, durationMs);
+        if (previewIsTrimmed) setError('غيّرت نقاط القص بعد اعتمادها. اضغط «اعتماد القص» مرة أخرى لتحديث ملف WAV.');
     }
 
+    deviceSelect?.addEventListener('change', function () { setError('سيُستخدم الميكروفون المحدد في التسجيل التالي.'); });
+    navigator.mediaDevices?.addEventListener?.('devicechange', refreshMicrophones);
+    refreshMicrophones();
     startButton.addEventListener('click', startRecording);
     pauseButton.addEventListener('click', pauseRecording);
     resumeButton.addEventListener('click', resumeRecording);
@@ -336,16 +543,17 @@
         recorder.stop();
     });
     deleteButton.addEventListener('click', function () { resetRecorder(true); });
+    applyTrimButton?.addEventListener('click', applyRealTrim);
     trimStart.addEventListener('input', updateTrim);
     trimEnd.addEventListener('input', updateTrim);
     preview.addEventListener('timeupdate', function () {
-        if (preview.currentTime * 1000 >= currentTrimEnd && currentTrimEnd > 0) {
+        if (!previewIsTrimmed && preview.currentTime * 1000 >= currentTrimEnd && currentTrimEnd > 0) {
             preview.pause();
             preview.currentTime = currentTrimStart / 1000;
         }
     });
     preview.addEventListener('play', function () {
-        if (currentTrimStart > 0 && preview.currentTime * 1000 < currentTrimStart) {
+        if (!previewIsTrimmed && currentTrimStart > 0 && preview.currentTime * 1000 < currentTrimStart) {
             preview.currentTime = currentTrimStart / 1000;
         }
     });

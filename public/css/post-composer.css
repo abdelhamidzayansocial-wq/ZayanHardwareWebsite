@@ -70,6 +70,8 @@
 .post-composer__dialog-head button { inline-size: 2.2rem; block-size: 2.2rem; border-radius: 50%; background: var(--color-field); font-size: 1.3rem; }
 .audio-recorder { display: grid; gap: .8rem; padding: 1rem; background: var(--color-field); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .audio-recorder__wave { display: block; inline-size: 100%; block-size: 5rem; border-radius: .5rem; background: var(--color-surface); }
+.audio-recorder__level { display: grid; grid-template-columns: auto minmax(5rem, 1fr); align-items: center; gap: .75rem; color: var(--color-muted); font-size: var(--text-xs); }
+.audio-recorder__level meter { inline-size: 100%; block-size: .65rem; accent-color: var(--color-primary); }
 .audio-recorder__time { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
 .audio-recorder__time strong { font-family: var(--font-mono); font-size: 1.25rem; direction: ltr; }
 .audio-recorder__time span { color: var(--color-muted); font-size: var(--text-xs); }
