@@ -1,3 +1,12 @@
+## 2026-11-03 — Merge Audio Stage 2 into main
+
+- Integrated audio recording, decoded-source trimming to mono 16 kHz PCM16 WAV, private original/rendered media separation, server-side WAV validation, draft persistence/recovery, and publish/rollback changes from PR #48.
+- Direct merge of PR #48 was blocked by conflicts after PR #49 advanced `main`. Created `integration/audio-feature-merge-20261103` with current `main` as first parent and audio feature head as second parent; preserved PR #49 canonical database defaults and omitted duplicate lowercase `plan.md`.
+- PR #51 merged into `main` as `7437b190335dc4bffba3d6a542b0372a4e85dbca`. GitHub also marks PR #48 merged through integration commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`.
+- 19 files changed, including audio recorder/composer, PHP publishing and WAV policy, schema, migration, docs, tests, and `PLAN.md`.
+- Verification: merge response and main/PR state were checked. No tests, GitHub Actions, browser/device acceptance, database integration runs, database migrations, or deployment were performed for the merged baseline. Historical PR #48 CI results predate this merge and are not evidence for it.
+- Follow-up: reconcile migration 020 placement with `database/managed_migrations/` policy; run focused PHP/JS and disposable-DB tests; complete browser/device and draft conflict/pending-delete acceptance.
+
 ## 2026-11-02 — Merge canonical database configuration and project plan
 
 - Reviewed PR #49's eight-file diff and key runtime/setup references. Confirmed `config/database.php`, `.env.example`, fresh-install instructions, backup/restore examples, and canonical repository handoff.
