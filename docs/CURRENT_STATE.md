@@ -1,3 +1,13 @@
+## 2026-11-03 — Repository diff and exact-main verification
+
+- Canonical connected repository confirmed as `abdelhamidzayansocial-wq/ZayanHardwareWebsite`; current `main` head is `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e` (PR #52). Older `zayanfordesign` references in historical handoff notes are superseded.
+- Compared complete Git trees with `zoba2012ahmed/zayan_hardware`: primary has 278 tree entries / 231 blobs; comparison has 128 / 108. Every comparison blob exists in primary; no comparison-only file exists; primary has 123 unique blobs; only shared file with a different blob SHA is README.md. No source files were copied or deleted.
+- Exact current main SHA passed PHP syntax/regression workflow [41577446468](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446468), Graphify workflow [41577446626](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446626), and DB integration workflow [41577446614](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446614). DB matrix passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11; each engine ran audio publish/metadata/rollback integration successfully.
+- Reviewed `AudioWavPolicy`, its standalone test, the audio publish integration test, fresh-install schema, migration 020, managed-migration README, and migration-readiness policy. Migration 020 is correctly located in `database/migrations/` until the managed runner is ready; it is intended for a verified schema-at-019 upgrade. It was not applied to any live database.
+- The standalone WAV policy test passed in an isolated local harness. It is not currently a step in the PHP workflow; tracked as CI-AUDIO-001 for a future batched PR after Actions allowance is confirmed.
+- No workflow YAML was changed, no Actions rerun/dispatch was triggered, no source migration or deployment was performed, and no owner/local/live database was accessed. Browser/device acceptance remains pending.
+- Verification work is documented on branch `audit/verify-main-audio-20261103`; no PR was opened pending Actions billing/allowance confirmation.
+
 ## 2026-11-02 — PR #49 merged: canonical DB defaults and project plan
 
 - PR #49 merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
