@@ -51,7 +51,7 @@
 - **Dependencies:** Owner confirmation of canonical repository and DB name (confirmed 2026-11-02).
 - **Affected Files:** `config/database.php`, `.env.example`, `database/FRESH_INSTALL.md`, `docs/DATABASE_BACKUP_RESTORE.md`.
 - **Test Results:** No PHP lint, automated tests, database integration tests, local runtime checks, or Actions were run. Static review confirmed the updated defaults and setup docs; a disposable CI DB name `zayan_fresh_install_test` remains intentionally separate. Actual local DB existence/configuration is not verified.
-- **Commit/PR:** PR #49 merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49.
+- **Commit/PR:** PR #49 merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`: https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/pull/49.
 - **Implementation Notes:** Existing local `.env` is intentionally not modified by a GitHub source change. Do not rename/create/migrate a live DB as part of this task.
 
 ### CONS-LOCAL-001 — Reconcile local workspaces into the official checkout
@@ -73,7 +73,7 @@
 - **Dependencies:** None.
 - **Affected Files:** `PLAN.md`.
 - **Test Results:** Structural source review pending after commit.
-- **Commit/PR:** Current branch; PR #49 is open as draft.
+- **Commit/PR:** Plan maintenance remains ongoing; PR #49 was merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`. This audit update is isolated on `audit/verify-main-audio-20261103`.
 - **Implementation Notes:** This file is the authoritative project task ledger.
 
 ## 5. Backlog
@@ -148,7 +148,7 @@
 
 
 - **CONS-DB-001 (partial source implementation, 2026-11-02):** Updated `config/database.php`, `.env.example`, `database/FRESH_INSTALL.md`, and `docs/DATABASE_BACKUP_RESTORE.md` to use `zayanhardware_db`. Verification remains pending; do not mark runtime connectivity as complete.
-- **Repository identity correction (2026-11-02):** Updated `AI_CONTEXT.md` to identify owner-confirmed canonical repository `zayanfordesign/ZayanHardwareWebsite`.
+- **Repository identity correction (2026-11-02; superseded 2026-11-03):** `AI_CONTEXT.md` was updated to `zayanfordesign/ZayanHardwareWebsite` based on the then-recorded owner confirmation. The connected repository, merged PR history, and current canonical target were re-verified on 2026-11-03 as `abdelhamidzayansocial-wq/ZayanHardwareWebsite`; the earlier identity is historical and superseded.
 
 ## 9. Technical Decisions
 
