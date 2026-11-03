@@ -191,4 +191,4 @@
 
 ## 12. Next Priority
 
-Complete browser/device acceptance for microphone recording, pause/resume, trim/export, draft recovery/conflict handling, and published playback. Keep all live-database changes blocked until a schema-at-019 preflight, verified backup/restore, and explicit approval. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
+First configure and verify a `main` branch ruleset requiring PR review and the three existing quality-gate checks, while blocking direct pushes, force pushes, and deletion. Then complete browser/device acceptance for microphone recording, pause/resume, trim/export, draft recovery/conflict handling, and published playback. Keep live-database changes blocked until schema-at-019 preflight, verified backup/restore, and explicit approval.
