@@ -77,6 +77,17 @@
 - **Implementation Notes:** This file is the authoritative project task ledger.
 
 ## 5. Backlog
+### GIT-GUARD-001 — Protect main and require the quality-gate workflows
+- **Description:** Configure repository rules for `main` so direct pushes/deletions are blocked and reviewed pull requests require PHP syntax, Graphify, and database integration checks.
+- **Priority:** P1
+- **State:** PENDING
+- **Acceptance Criteria:** A repository ruleset or branch protection rule targets `main`; require pull requests and the three named status checks; block force pushes and branch deletion; verify the effective rules after saving.
+- **Dependencies:** Owner approval for repository governance settings; confirm exact required-check names and merge policy.
+- **Affected Files:** GitHub repository settings/rulesets; no application source files.
+- **Test Results:** Read-only GitHub API inspection reports `main.protected=false` and repository rulesets `[]` as of 2026-11-03. No settings were changed.
+- **Commit/PR:** None; repository settings task.
+- **Implementation Notes:** This is a governance gap, not an application test failure. Keep Actions workflows enabled; do not require a check that cannot run while Actions quota is exhausted without a documented owner-approved fallback.
+
 ### CI-AUDIO-001 — Add standalone WAV policy test to PHP workflow
 - **Description:** Add `tests/php/audio-wav-policy.php` to `.github/workflows/php-lint.yml` so RIFF chunk, padding, format, size, and duration validation remains a first-class CI regression check.
 - **Priority:** P2
