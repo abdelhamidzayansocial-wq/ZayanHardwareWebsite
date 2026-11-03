@@ -1,3 +1,14 @@
+## 2026-11-03 — Repository diff, audio verification, and Actions preservation
+
+- Compared complete Git trees for `abdelhamidzayansocial-wq/ZayanHardwareWebsite` and `zoba2012ahmed/zayan_hardware`. The second repository has no unique file blobs; all 108 of its blobs are present in the primary repository. The primary has 123 unique blobs; only README.md differs among shared files. No source was copied or removed.
+- Verified current primary `main` SHA `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`: PHP workflow [41577446468](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446468), Graphify [41577446626](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446626), and database integration [41577446614](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446614) all completed successfully.
+- The database matrix passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11. Each engine executed `tests/php/draft-audio-publish-integration.php` successfully, covering audio publish metadata, original/rendered media separation, duration mismatch rejection, and rollback preservation.
+- Reviewed the standalone `tests/php/audio-wav-policy.php` and `AudioWavPolicy`; an isolated local harness passed valid WAV, invalid RIFF, odd-chunk padding, duplicate chunks, invalid format, duration, trailing bytes, and oversize cases. This standalone test is not yet wired into `php-lint.yml`; tracked as CI-AUDIO-001.
+- Confirmed migration 020 is correctly kept in `database/migrations/` until the managed CLI runner is ready. It is not to be replayed on fresh installs or applied to an existing database without a verified schema-at-019 preflight and backup.
+- Canonical repository handoff corrected to `abdelhamidzayansocial-wq/ZayanHardwareWebsite`; old `zayanfordesign` references are historical/stale.
+- Preserved all GitHub Actions workflows and matrices. No reruns, dispatches, workflow edits, paid usage, migrations, deployments, or live DB operations were performed. Browser/device acceptance remains outstanding.
+- Documentation branch: `audit/verify-main-audio-20261103`; PR intentionally not opened until Actions allowance/billing status is confirmed.
+
 ## 2026-11-03 — Merge Audio Stage 2 into main
 
 - Integrated audio recording, decoded-source trimming to mono 16 kHz PCM16 WAV, private original/rendered media separation, server-side WAV validation, draft persistence/recovery, and publish/rollback changes from PR #48.
