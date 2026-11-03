@@ -5,7 +5,7 @@
 ## 1. Project identity and scope
 
 - Product: **Zayan Hardware — عصارة الورش**.
-- Repository: `zayanfordesign/ZayanHardwareWebsite` (canonical GitHub repository confirmed by owner on 2026-11-02).
+- Repository: `abdelhamidzayansocial-wq/ZayanHardwareWebsite` (canonical connected repository verified against GitHub metadata and merged PRs on 2026-11-03). Older references below to `zayanfordesign/ZayanHardwareWebsite` are historical/stale and superseded.
 - Purpose: an Arabic-first, RTL technical community and knowledge system for mobile-phone hardware repair, board-level diagnosis, measurements, schematics, and repair outcomes.
 - Stack: custom PHP 8.2+ MVC, MySQL/MariaDB, vanilla JavaScript/CSS, responsive web UI, PWA and Web Push.
 - Required architecture: Core → Controllers → Services / Models → Views; route definitions in `config/routes.php`; public document root is `public/`.
@@ -41,6 +41,15 @@ Never conflate these states:
 - the live database and its applied migration history.
 
 Always report the exact branch and commit being discussed. A passing CI job does not prove local browser/PWA behavior or production deployment. A migration file existing in Git does not prove it ran on a database.
+
+## 3A. Latest verified GitHub state — 2026-11-03
+
+- Canonical repository: `abdelhamidzayansocial-wq/ZayanHardwareWebsite`; default branch: `main`.
+- Current `main` head verified: `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e` (PR #52).
+- Exact-head GitHub Actions all passed: PHP syntax run [41577446468](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446468), Graphify run [41577446626](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446626), and database integration run [41577446614](https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/actions/runs/41577446614).
+- The database workflow passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11. All three ran the audio publish/metadata/rollback integration test successfully.
+- Audio migration 020 remains correctly in `database/migrations/` until the managed CLI runner is ready, per `database/managed_migrations/README.md`; it has not been applied to an owner database.
+- No Actions reruns or dispatches were initiated during this verification. Browser/device acceptance and local/live DB state remain unverified.
 
 ## 4. GitHub branch and CI snapshot — 2026-10-31
 
