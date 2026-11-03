@@ -31,6 +31,18 @@
 
 ## 4. Active Tasks
 
+### AUD-INT-001 — Integrate audio recording, real trimming, and publishing
+- **Description:** Bring PR #48's audio recorder, real mono 16 kHz PCM16 WAV trimming, private original/rendered media separation, draft persistence, server validation, and publish rollback into the current main baseline.
+- **Priority:** P1
+- **State:** IN PROGRESS
+- **Acceptance Criteria:** Audio source and schema changes are present on an integration branch based on current main; canonical DB defaults from PR #49 remain intact; duplicate lowercase `plan.md` is excluded; migration placement and all changed files are reviewed; PHP/JS and disposable-DB tests pass; browser/device acceptance is recorded before release.
+- **Dependencies:** Browser/device acceptance; restore-tested disposable DB; review of migration policy and Actions budget.
+- **Affected Files:** `.github/workflows/database-migrations.yml`, `app/controllers/DraftController.php`, `app/controllers/IssueController.php`, `app/models/PostDraft.php`, `app/services/AudioWavPolicy.php`, `app/services/DraftPublishingService.php`, `app/views/issues/create.php`, `database/fresh_install.sql`, `database/migrations/020_audio_original_and_rendered_files.sql`, `public/css/post-composer.css`, `public/js/audio-recorder.js`, `public/js/post-composer.js`, and focused PHP tests/docs.
+- **Test Results:** Historical CI on the original PR #48 head reported PHP/JS syntax, Graphify, and database matrix success (MySQL 8.0, MariaDB 10.4.32, MariaDB 10.11). Those runs predate the current main baseline and do not verify this integration commit. No tests or Actions were run for this integration branch.
+- **Commit/PR:** Integration merge commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`; branch `integration/audio-feature-merge-20261103`; source PR #48.
+- **Implementation Notes:** The GitHub merge API rejected PR #48 because of conflicts. A merge commit was assembled on a dedicated branch with current main as first parent and the audio feature head as second parent. Feature code/schema/docs were overlaid while preserving PR #49's canonical DB config and docs; the duplicate lowercase `plan.md` was not carried over. The historical migration file remains under `database/migrations/020_...` despite the current managed-migration guidance and must be reconciled before applying it to any database.
+
+
 ### CONS-DB-001 — Canonicalize database name in tracked configuration
 - **Description:** Use `zayanhardware_db` as the only active default in application DB configuration and the sample environment; align setup/backup documentation.
 - **Priority:** P1
@@ -139,8 +151,8 @@
 - Main baseline: `0d9a2f15645055d958adf583de284c97634d1eb7`
 - Working branch: `chore/repository-db-name-consolidation`
 - PR #49: https://github.com/zayanfordesign/ZayanHardwareWebsite/pull/49 — merged as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
-- PR #48 (audio recording/trimming) remains separate; not merged because browser/device acceptance, draft conflict/pending-delete recovery, and full code review are still outstanding. After PR #49 moved `main`, GitHub reports PR #48 mergeability needs refresh.
+- PR #48 (audio recording/trimming): source was integrated on `integration/audio-feature-merge-20261103` as merge commit `ee66711032ebbf3dbc1d1ee2ecab25268a41f87b`. The original PR remains open; this integration is not yet merged to `main`.
 
 ## 12. Next Priority
 
-Complete CONS-DB-002: finish the full tracked-tree/local DB-name audit. Then complete PR #48's audio acceptance and remaining branch review. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
+Review and merge the audio integration branch to `main` after inspecting its 18-file diff; then run the focused PHP/JavaScript and disposable-DB tests plus browser/device acceptance. Resolve the migration-placement discrepancy before any database DDL. Local workspace reconciliation remains blocked until authorized local filesystem access is available.
