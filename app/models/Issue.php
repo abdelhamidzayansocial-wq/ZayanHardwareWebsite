@@ -121,6 +121,57 @@ final class Issue extends Model
         return $stmt->fetchAll();
     }
 
+    /**
+     * Search technical content only. Member profiles are intentionally never
+     * included in search results; device coverage stays profile metadata.
+     */
+    public static function search(string $query, string $type = ''): array
+    {
+        $query = trim($query);
+        if ($query === '' || mb_strlen($query) > 120) return [];
+
+        $escaped = addcslashes($query, '%_\\\\');
+        $like = '%' . $escaped . '%';
+        $tag = trim(ltrim($query, '#'));
+        $tagLike = '%' . addcslashes($tag, '%_\\\\') . '%';
+        $where = [
+            'i.deleted_at IS NULL',
+            "(
+                i.title LIKE ? OR i.description LIKE ? OR i.device_model LIKE ? OR i.category LIKE ?
+                OR COALESCE(dm.display_name, '') LIKE ? OR COALESCE(m.commercial_name, '') LIKE ?
+                OR COALESCE(m.model_code, '') LIKE ?
+                OR JSON_SEARCH(i.tags_json, 'one', ?, NULL, '$[*]') IS NOT NULL
+                OR EXISTS (SELECT 1 FROM issue_replies r WHERE r.issue_id = i.id AND r.deleted_at IS NULL AND r.body LIKE ?)
+                OR EXISTS (SELECT 1 FROM issue_diagnostic_updates d WHERE d.issue_id = i.id AND d.deleted_at IS NULL AND d.body LIKE ?)
+                OR EXISTS (SELECT 1 FROM issue_results ir WHERE ir.issue_id = i.id AND ir.deleted_at IS NULL
+                    AND (ir.final_cause LIKE ? OR ir.repair_action LIKE ?))
+            )"
+        ];
+        $params = [$like, $like, $like, $like, $like, $like, $like, $tagLike, $like, $like, $like, $like];
+        if (in_array($type, ['help_request', 'technical_post', 'discussion'], true)) {
+            $where[] = 'i.content_type = ?';
+            $params[] = $type;
+        }
+
+        $stmt = self::db()->prepare(
+            'SELECT i.id, i.title, i.content_type, i.device_model, i.category, i.description,
+                    i.tags_json, i.status, i.created_at, u.display_name AS author,
+                    dm.display_name AS manufacturer_name, m.commercial_name AS model_commercial_name,
+                    m.model_code,
+                    (SELECT COUNT(*) FROM issue_replies r WHERE r.issue_id = i.id AND r.deleted_at IS NULL) AS reply_count
+             FROM issues i
+             JOIN users u ON u.id = i.user_id
+             LEFT JOIN device_manufacturers dm ON dm.id = i.manufacturer_id
+             LEFT JOIN device_models m ON m.id = i.device_model_id
+             WHERE ' . implode(' AND ', $where) . '
+             ORDER BY CASE WHEN i.status = \'resolved\' THEN 0 ELSE 1 END,
+                      i.updated_at DESC, i.id DESC
+             LIMIT 50'
+        );
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
     public static function profilePosts(int $userId): array
     {
         $stmt = self::db()->prepare(
