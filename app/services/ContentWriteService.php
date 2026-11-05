@@ -57,7 +57,8 @@ final class ContentWriteService
         ?string $category,
         string $description,
         string $measurements,
-        array $uploads
+        array $uploads,
+        array $tags = []
     ): int {
         $this->begin();
         $movedFiles = [];
@@ -72,7 +73,8 @@ final class ContentWriteService
                 $deviceModel,
                 $category,
                 $description,
-                $measurements
+                $measurements,
+                $tags
             );
 
             $map = $this->storeAttachments($issueId, $userId, $uploads, $description, $movedFiles);
