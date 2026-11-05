@@ -48,6 +48,15 @@ New upgrades use a single, unique, monotonically increasing sequence after the h
 
 A future runner should be CLI-only, use a database advisory lock, verify the ledger and checksums, refuse unknown or drifted states, stop on the first error, and never automatically retry a partially applied DDL migration. The web diagnostic console remains read-only. Manual SQL migrations are run only through a trusted local SQL client or CLI after confirming the target schema.
 
+## Forward migration checksums
+
+The following SHA-256 values cover the exact UTF-8 SQL file contents, including the final newline. Recompute and update this record if either file changes.
+
+| Migration | SHA-256 |
+|---|---|
+| `021_issue_hashtags.sql` | `0364d9d9dceea761fede75d1a386e5e51f179b5b7ca5f76290a67f2724e56e0e` |
+| `022_technician_device_and_interest_preferences.sql` | `e8890d15cc9bf3c2b3c5a016a5ac9fb18785fdfeafa45ce3347c61afc2244a9c` |
+
 ## Commands available
 
 - `db status` — database identity, server version, historical filenames, and supported ledger status.
