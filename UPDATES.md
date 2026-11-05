@@ -7,7 +7,7 @@
 - Privacy boundary: device categories are shown on the technician's public profile; favorite repair domains are stored separately in `user_interest_domains` and are not selected for public profile/search display or skill-rating evidence.
 - Database: added forward-only migrations 021 (issue hashtags) and 022 (expanded device categories/private interests), and included both in `database/fresh_install.sql`. Never run the fresh-install file against an existing database.
 - Verification: GitHub source edits only. PHP/JS syntax checks, registration browser flow, draft recovery, publish round-trip, SQL migration execution, MySQL/MariaDB compatibility, and CI have not been run. No live database, local checkout, or deployment was accessed.
-- Remaining before merge: validate JS/PHP syntax; confirm schema nullability for optional manufacturer/model references; run migrations on disposable MySQL 8/MariaDB targets; add focused tests; add profile settings editing for device/interest selections; review mobile/desktop UI and search query behavior.
+- Remaining before merge: validate JS/PHP syntax; confirm schema nullability for optional manufacturer/model references; run migrations on disposable MySQL 8/MariaDB targets; add focused tests;  review mobile/desktop UI and search query behavior.
 
 ## 2026-11-03 — Merge Audio Stage 2 into main
 
