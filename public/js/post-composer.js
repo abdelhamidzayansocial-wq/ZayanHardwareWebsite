@@ -218,6 +218,10 @@
             chip.className = 'post-composer__tag';
             const label = document.createElement('span');
             label.textContent = '#' + tag;
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'tags[]';
+            hidden.value = tag;
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.textContent = '×';
@@ -227,7 +231,7 @@
                 renderTags();
                 markDirty();
             });
-            chip.append(label, remove);
+            chip.append(label, hidden, remove);
             tagList.appendChild(chip);
         });
         if (tagInput) tagInput.disabled = tags.length >= 5;
