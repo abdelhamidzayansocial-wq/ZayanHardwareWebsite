@@ -140,61 +140,61 @@ $selectedExperience = (string) ($old['board_experience'] ?? '');
                     <div class="wizard-choice__grid wizard-choice__grid--devices">
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="smartphone" data-wizard-required <?= in_array('smartphone', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">▯</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">📱</span>
                             <strong>هواتف</strong>
                             <span>موبايل وأجهزة ذكية</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="laptop" data-wizard-required <?= in_array('laptop', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">▱</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">💻</span>
                             <strong>لابتوبات</strong>
                             <span>أجهزة محمولة</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="desktop" data-wizard-required <?= in_array('desktop', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">▣</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">🖥️</span>
                             <strong>كمبيوتر</strong>
                             <span>أجهزة مكتبية</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="screens" data-wizard-required <?= in_array('screens', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">▤</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">📺</span>
                             <strong>شاشات</strong>
                             <span>تلفزيونات وشاشات</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="drone" data-wizard-required <?= in_array('drone', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">✣</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">🚁</span>
                             <strong>درون</strong>
                             <span>طائرات بدون طيار</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="playstation" data-wizard-required <?= in_array('playstation', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">⌘</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">🎮</span>
                             <strong>بلايستيشن</strong>
                             <span>أجهزة PlayStation</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="xbox" data-wizard-required <?= in_array('xbox', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">⌗</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">🕹️</span>
                             <strong>Xbox</strong>
                             <span>أجهزة Xbox</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="home_appliances" data-wizard-required <?= in_array('home_appliances', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">⌂</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">🏠</span>
                             <strong>أجهزة منزلية</strong>
                             <span>إلكترونيات منزلية</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="networking" data-wizard-required <?= in_array('networking', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">⌁</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">📡</span>
                             <strong>أجهزة شبكات</strong>
                             <span>راوترات ومعدات شبكات</span>
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="smartwatch" data-wizard-required <?= in_array('smartwatch', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">◷</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">⌚</span>
                             <strong>ساعات ذكية</strong>
                             <span>ساعات وأساور ذكية</span>
                         </label>
@@ -206,7 +206,7 @@ $selectedExperience = (string) ($old['board_experience'] ?? '');
                         </label>
                         <label class="wizard-choice__card wizard-choice__device-card">
                             <input type="checkbox" name="device_focus[]" value="other" data-wizard-required <?= in_array('other', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__icon" aria-hidden="true">⌬</span>
+                            <span class="wizard-choice__icon" aria-hidden="true">⚙️</span>
                             <strong>أجهزة أخرى</strong>
                             <span>أجهزة هاردوير أخرى</span>
                         </label>
