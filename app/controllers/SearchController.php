@@ -7,6 +7,7 @@ use App\Core\Controller;
 use App\Core\Response;
 use App\Models\Issue;
 use App\Services\AuthService;
+use App\Services\RateLimiter;
 
 final class SearchController extends Controller
 {
