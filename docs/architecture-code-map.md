@@ -37,7 +37,8 @@ The repeatable source scanner is maintained in `tools/graphify/graphify.py`. It 
 
 | Route family | Entry controller | Main downstream dependencies |
 |---|---|---|
-| Home, feed, workbench, my posts | `HomeController`, `FeedController`, `WorkbenchController`, `MyPostsController` | `Issue`, `User`, view templates |\n| Technical search | `SearchController` | `Issue::search()`; searches posts, tags, device/model metadata, replies, diagnostic updates, and approved repair outcomes; never returns technician profiles |
+| Home, feed, workbench, my posts | `HomeController`, `FeedController`, `WorkbenchController`, `MyPostsController` | `Issue`, `User`, view templates |
+| Technical search | `SearchController` | `Issue::search()`; searches posts, tags, device/model metadata, replies, diagnostic updates, and approved repair outcomes; never returns technician profiles |
 | Technical issue lifecycle | `IssueController` | `Issue`, `ContentEditorService`, `ContentWriteService`, `RateLimiter`, `NotificationService`, `DraftPublishingService` |
 | Draft composer and media | `DraftController` | `PostDraft`, `RateLimiter`, private file storage |
 | Device catalog and suggestions | `DeviceCatalogController` | `DeviceCatalog`, `RateLimiter`, admin authorization |
@@ -92,7 +93,8 @@ flowchart TD
     Publish --> IssueFiles[storage/private/issues]
 ```
 
-- The browser composer stores local/offline work and synchronizes server changes with a revision value. The single visual writing card carries title, details, hashtags and attachments; the existing content-type cards remain above it. Device/model/category selection is optional.\n- Up to five validated hashtags are saved in draft payloads and `issues.tags_json`, rendered on issue pages, and included in the content-only technical search.
+- The browser composer stores local/offline work and synchronizes server changes with a revision value. The single visual writing card carries title, details, hashtags and attachments; the existing content-type cards remain above it. Device/model/category selection is optional.
+- Up to five validated hashtags are saved in draft payloads and `issues.tags_json`, rendered on issue pages, and included in the content-only technical search.
 - `PostDraft` locks the draft row and checks the expected revision for server-side media mutations.
 - `DraftController` validates ownership, CSRF, type, MIME, size, dimensions, count limits, and revision before accepting media.
 - `DraftPublishingService` transfers draft media into permanent issue storage and creates the corresponding issue/attachment records in a database transaction. Its filesystem rename operations are compensated on failure.
