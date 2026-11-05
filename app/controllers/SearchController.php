@@ -12,7 +12,8 @@ final class SearchController extends Controller
 {
     public function index(): Response
     {
-        if (!AuthService::user()) return $this->redirect('/login');
+        $user = AuthService::user();
+        if (!$user) return $this->redirect('/login');
 
         $query = $this->request->query['q'] ?? '';
         $query = is_string($query) ? trim($query) : '';
@@ -22,7 +23,8 @@ final class SearchController extends Controller
         $type = is_string($type) ? $type : '';
         if (!in_array($type, ['help_request', 'technical_post', 'discussion'], true)) $type = '';
 
-        $results = $query !== '' ? Issue::search($query, $type) : [];
+        $searchRateLimited = $query !== '' && !RateLimiter::allowForUser('search.technical', (int) $user['id'], 30, 60, 100);
+        $results = $query !== '' && !$searchRateLimited ? Issue::search($query, $type) : [];
         foreach ($results as &$item) {
             $tags = json_decode((string) ($item['tags_json'] ?? ''), true);
             $item['tags'] = is_array($tags)
@@ -41,6 +43,7 @@ final class SearchController extends Controller
             'query' => $query,
             'type' => $type,
             'results' => $results,
+            'searchRateLimited' => $searchRateLimited,
         ]);
     }
 }
