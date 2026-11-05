@@ -6,7 +6,7 @@
 - Search returns technical posts only (not technician profiles) and checks title/body, device/model metadata, hashtags, replies, diagnostic updates and approved repair outcomes.
 - Registration now has icon-card multi-select for device categories and a separate private favorite-repair-domain selection; both can be edited later from Settings. Public profiles show device categories only; favorites are stored separately in `user_interest_domains` and are not public skill ratings.
 - Forward migrations 021 and 022 are included in the branch and appended to the consolidated fresh-install SQL. Existing databases must not run `fresh_install.sql`; review and manually apply the numbered forward migrations only after confirming the exact schema baseline.
-- Verification status: GitHub source edits only. PHP/JS lint, browser/device behavior, draft and publish round-trip, search query execution, registration flow, SQL migration execution on MySQL/MariaDB, and CI have not been run. No owner database, local checkout, or deployment was accessed.
+- Verification status: PHP lint passed only for isolated copies of the new SearchController, PageController, and search view. Other modified PHP files and JavaScript remain unlinted; browser/device behavior, draft and publish round-trip, search query execution, registration flow, SQL migration execution on MySQL/MariaDB, and CI have not been run. No owner database, local checkout, or deployment was accessed.
 - Before merge: run focused tests; confirm optional issue fields and MySQL/MariaDB JSON_SEARCH behavior; test no-profile-results search; complete desktop/mobile visual acceptance.
 
 ## 2026-11-02 — PR #49 merged: canonical DB defaults and project plan
