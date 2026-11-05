@@ -142,7 +142,7 @@ final class Issue extends Model
                 OR COALESCE(m.model_code, '') LIKE ?
                 OR JSON_SEARCH(i.tags_json, 'one', ?, NULL, '$[*]') IS NOT NULL
                 OR EXISTS (SELECT 1 FROM issue_replies r WHERE r.issue_id = i.id AND r.deleted_at IS NULL AND r.body LIKE ?)
-                OR EXISTS (SELECT 1 FROM issue_diagnostic_updates d WHERE d.issue_id = i.id AND d.deleted_at IS NULL AND d.body LIKE ?)
+                OR EXISTS (SELECT 1 FROM issue_diagnostic_updates d WHERE d.issue_id = i.id AND d.body LIKE ?)
                 OR EXISTS (SELECT 1 FROM issue_results ir WHERE ir.issue_id = i.id AND ir.deleted_at IS NULL
                     AND (ir.final_cause LIKE ? OR ir.repair_action LIKE ?))
             )"
