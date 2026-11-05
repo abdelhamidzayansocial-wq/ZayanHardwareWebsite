@@ -9,7 +9,7 @@ The current design is a single-page composer, not a multi-page wizard. The user 
 - The title is the first, visually prominent line inside the writing surface; the body follows beneath it in the same card.
 - Text, numbered/bulleted Markdown lists, and inline formatting use the existing CodeMirror 6 editor. Numbered and bulleted lists are written directly in the content; there is no separate steps form in the new composer.
 - Images/video are added from the attachment control at the bottom of the same writing surface. The existing private-media pipeline, image editor, audio recorder, and draft recovery remain in place.
-- Up to five optional hashtags can be added as chips. Arabic and Latin letters, digits, and underscores are accepted. Tags are saved with draft metadata and stored as JSON on the published issue. They are displayed on the issue page. Search indexing/filtering is not yet wired to this field and remains a required follow-up.
+- Up to five optional hashtags can be added as chips. Arabic and Latin letters, digits, and underscores are accepted. Tags are saved with draft metadata and stored as JSON on the published issue. They are displayed on the issue page and included in the content-only technical search. Search also covers titles, descriptions, device/model names and codes, replies, diagnostic updates, and approved repair outcomes; technician profiles are never returned as search results.
 - The current public content-type choices remain “معلومة فنية” and “طلب مساعدة” to preserve the existing domain model. Do not silently add a new database content type without a reviewed migration and corresponding status/workflow behavior.
 - Device/model/category metadata may still be retained for older drafts or future optional enrichment, but a technician can publish without selecting a device or technical category.
 
@@ -50,7 +50,7 @@ Migration 012 creates the manufacturer/model catalog, moderated model suggestion
 ## Validation required before merge
 
 - Verify the unified composer is one responsive card on desktop and mobile; confirm title/body separation is visual only and that old drafts restore correctly.
-- Test tags with Arabic/Latin text, invalid punctuation, duplicates, max-five enforcement, local/server draft recovery, publish, and public rendering.
+- Test tags with Arabic/Latin text, invalid punctuation, duplicates, max-five enforcement, local/server draft recovery, publish, public rendering, and hashtag search.
 - Confirm a help request publishes without manufacturer, model, or category, and older drafts with selected model metadata still publish.
 - Test the expanded registration device cards and favorite-domain cards; verify device categories are visible on the public profile while favorite domains are not returned by public profile/search queries.
 - Apply migrations 021 and 022 to disposable MySQL 8 and supported MariaDB versions; verify their preconditions/postconditions and fresh-install equivalence.
