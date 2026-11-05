@@ -43,7 +43,7 @@ final class DraftPublishingService
             || ($modelId !== null && ($modelId === false || $modelId < 1))
             || (($manufacturerId === null) !== ($modelId === null))
             || mb_strlen($category) > 40) {
-            throw new \\DomainException('draft_fields_invalid');
+            throw new \DomainException('draft_fields_invalid');
         }
 
         $tags = [];
@@ -51,8 +51,8 @@ final class DraftPublishingService
         if (is_array($rawTags)) {
             foreach (array_slice($rawTags, 0, 5) as $rawTag) {
                 if (!is_string($rawTag)) continue;
-                $tag = trim(preg_replace('/\\s+/u', '_', ltrim($rawTag, '#')) ?? '');
-                if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\\p{L}\\p{N}_]+$/u', $tag) === 1
+                $tag = trim(preg_replace('/\s+/u', '_', ltrim($rawTag, '#')) ?? '');
+                if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\p{L}\p{N}_]+$/u', $tag) === 1
                     && !in_array($tag, $tags, true)) {
                     $tags[] = $tag;
                 }
@@ -96,7 +96,7 @@ final class DraftPublishingService
             if ($manufacturerId !== null && $modelId !== null) {
                 $manufacturer = $pdo->prepare('SELECT id FROM device_manufacturers WHERE id = ? AND is_active = 1');
                 $manufacturer->execute([(int) $manufacturerId]);
-                if (!$manufacturer->fetchColumn()) throw new \\DomainException('device_manufacturer_unavailable');
+                if (!$manufacturer->fetchColumn()) throw new \DomainException('device_manufacturer_unavailable');
 
                 $model = $pdo->prepare(
                     'SELECT id, commercial_name, model_code FROM device_models
@@ -104,7 +104,7 @@ final class DraftPublishingService
                 );
                 $model->execute([(int) $modelId, (int) $manufacturerId]);
                 $modelRow = $model->fetch();
-                if (!$modelRow) throw new \\DomainException('device_model_unavailable');
+                if (!$modelRow) throw new \DomainException('device_model_unavailable');
             }
 
             $mediaRows = $pdo->prepare(
