@@ -38,7 +38,7 @@ final class ProfileController extends Controller
         if (!$deviceTypes && in_array(($profile['device_focus'] ?? ''), ['iphone', 'android'], true)) {
             $deviceTypes = [$profile['device_focus']];
         }
-        $deviceLabels = ['iphone' => 'iPhone', 'android' => 'Android'];
+        $deviceLabels = ['iphone' => 'iPhone', 'android' => 'Android', 'smartphone' => 'هواتف', 'laptop' => 'لابتوبات', 'desktop' => 'كمبيوتر', 'screens' => 'شاشات', 'drone' => 'درون', 'playstation' => 'بلايستيشن', 'xbox' => 'Xbox', 'home_appliances' => 'أجهزة منزلية', 'networking' => 'أجهزة شبكات', 'smartwatch' => 'ساعات ذكية', 'printers' => 'طابعات', 'other' => 'أجهزة أخرى'];
         $deviceLabel = implode(' و ', array_map(static fn (string $type): string => $deviceLabels[$type] ?? '', $deviceTypes));
 
         return $this->view('profile/show', [
