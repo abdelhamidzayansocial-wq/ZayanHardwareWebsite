@@ -47,7 +47,7 @@ final class AuthService
             static fn ($value): string => is_string($value) ? trim($value) : '',
             $deviceFocusInput
         ), static fn (string $value): bool => in_array($value, ['smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'], true))));
-        $deviceFocus = in_array($deviceFocuses[0] ?? '', ['iphone', 'android'], true) ? $deviceFocuses[0] : null;
+        $deviceFocus = $deviceFocuses[0] ?? null;
         $interestInput = $input['interest_domains'] ?? [];
         if (!is_array($interestInput)) $interestInput = [$interestInput];
         $interestDomains = array_values(array_unique(array_filter(array_map(
@@ -88,7 +88,7 @@ final class AuthService
             $errors['username'] = 'اسم المستخدم غير متاح';
         }
         if (!$deviceFocuses) {
-            $errors['device_focus'] = 'اختر مجال تخصصك';
+            $errors['device_focus'] = 'اختر جهازًا واحدًا على الأقل';
         }
         if (!in_array($techLevel, ['fast', 'board'], true)) {
             $errors['tech_level'] = 'اختر مستواك الفني';
