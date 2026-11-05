@@ -1336,3 +1336,7 @@ INSERT INTO app_migration_ledger (
     1,
     'fresh_install:1.0.0'
 );
+
+
+-- 021: Optional structured hashtags on technical posts.
+ALTER TABLE issues ADD COLUMN tags_json LONGTEXT NULL;
