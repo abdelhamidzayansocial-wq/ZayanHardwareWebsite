@@ -130,10 +130,9 @@ final class Issue extends Model
         $query = trim($query);
         if ($query === '' || mb_strlen($query) > 120) return [];
 
-        $escaped = addcslashes($query, '%_\\\\');
-        $like = '%' . $escaped . '%';
+        $like = '%' . $query . '%';
         $tag = trim(ltrim($query, '#'));
-        $tagLike = '%' . addcslashes($tag, '%_\\\\') . '%';
+        $tagLike = '%' . $tag . '%';
         $where = [
             'i.deleted_at IS NULL',
             "(
@@ -143,7 +142,7 @@ final class Issue extends Model
                 OR JSON_SEARCH(i.tags_json, 'one', ?, NULL, '$[*]') IS NOT NULL
                 OR EXISTS (SELECT 1 FROM issue_replies r WHERE r.issue_id = i.id AND r.deleted_at IS NULL AND r.body LIKE ?)
                 OR EXISTS (SELECT 1 FROM issue_diagnostic_updates d WHERE d.issue_id = i.id AND d.body LIKE ?)
-                OR EXISTS (SELECT 1 FROM issue_results ir WHERE ir.issue_id = i.id AND ir.deleted_at IS NULL
+                OR EXISTS (SELECT 1 FROM issue_results ir WHERE ir.issue_id = i.id AND ir.review_status = 'approved'
                     AND (ir.final_cause LIKE ? OR ir.repair_action LIKE ?))
             )"
         ];
