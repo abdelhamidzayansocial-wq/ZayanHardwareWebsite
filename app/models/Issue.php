@@ -57,20 +57,41 @@ final class Issue extends Model
     }
 
     /** Create one of the supported post types while keeping existing issue IDs and relations intact. */
-    public static function create(int $userId, string $type, string $title, ?string $deviceModel, ?string $category, string $description, string $measurements): int
-    {
+    public static function create(
+        int $userId,
+        string $type,
+        string $title,
+        ?string $deviceModel,
+        ?string $category,
+        string $description,
+        string $measurements,
+        array $tags = []
+    ): int {
+        $normalizedTags = [];
+        foreach (array_slice($tags, 0, 5) as $rawTag) {
+            if (!is_string($rawTag)) continue;
+            $tag = trim(preg_replace('/\\s+/u', '_', ltrim($rawTag, '#')) ?? '');
+            if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\\p{L}\\p{N}_]+$/u', $tag) === 1
+                && !in_array($tag, $normalizedTags, true)) {
+                $normalizedTags[] = $tag;
+            }
+        }
+        $tagsJson = $normalizedTags
+            ? json_encode($normalizedTags, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
+            : null;
         $stmt = self::db()->prepare(
-            "INSERT INTO issues (user_id, content_type, title, device_model, category, description, measurements, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'open')"
+            "INSERT INTO issues (user_id, content_type, title, device_model, category, description, measurements, tags_json, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')"
         );
         $stmt->execute([
             $userId,
             $type,
             $title,
-            $deviceModel !== '' ? $deviceModel : null,
-            $category !== '' ? $category : null,
+            $deviceModel ?? '',
+            $category ?? '',
             $description,
             $measurements !== '' ? $measurements : null,
+            $tagsJson,
         ]);
         return (int) self::db()->lastInsertId();
     }
