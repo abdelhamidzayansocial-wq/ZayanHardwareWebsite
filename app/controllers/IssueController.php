@@ -139,7 +139,11 @@ final class IssueController extends Controller
             return $this->fail('/issues/create', $message);
         }
 
-        $tags = $this->request->input('tags', []);\n        if (!is_array($tags)) $tags = [];\n\n        try {\n            $issueId = (new ContentWriteService(Database::connection()))->createIssue(
+        $tags = $this->request->input('tags', []);
+        if (!is_array($tags)) $tags = [];
+
+        try {
+            $issueId = (new ContentWriteService(Database::connection()))->createIssue(
                 (int) $user['id'],
                 $type,
                 $title,
