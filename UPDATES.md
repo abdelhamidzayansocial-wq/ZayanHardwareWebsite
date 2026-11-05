@@ -6,8 +6,9 @@
 - Technician onboarding: replaced the old iPhone/Android-only device selection with icon cards for phones, laptops, desktop computers, screens, drones, PlayStation, Xbox, home electronics, networking devices, smartwatches, printers, and other devices. Added a separate multi-select for favorite repair domains, editable later from Settings.
 - Privacy boundary: device categories are shown on the technician's public profile; favorite repair domains are stored separately in `user_interest_domains` and are not selected for public profile/search display or skill-rating evidence.
 - Database: added forward-only migrations 021 (issue hashtags) and 022 (expanded device categories/private interests), and included both in `database/fresh_install.sql`. Never run the fresh-install file against an existing database.
-- Verification: PHP lint passed for isolated copies of the new SearchController, PageController, and search view. Other modified PHP files and JavaScript have not been linted; focused tests, registration/browser flow, draft recovery, publish round-trip, SQL migration execution, MySQL/MariaDB compatibility, and CI have not been run. No live database, owner checkout, or deployment was accessed.
-- Remaining before merge: validate JS/PHP syntax; confirm schema nullability for optional manufacturer/model references; run migrations on disposable MySQL 8/MariaDB targets; add focused tests; review mobile/desktop UI and search query behavior.
+- Verification on exact PR head `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`: PHP workflow passed (all PHP lint, JS syntax, and focused PHP regression/policy tests); database integration passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11, including fresh-install, content-write, draft/audio publishing, retention, and backup/restore checks; Graphify passed. CI used disposable databases only. No owner database, local checkout, or deployment was accessed.
+- Route cleanup: removed the duplicate `/search` registration from the fallback `soon` route list; the explicit SearchController route remains.
+- Remaining before merge: owner local browser/mobile acceptance, registration/settings flow, hashtag/search behavior, and real draft recovery/publish round-trip. CI does not replace those runtime checks. PR #53 remains draft and unmerged.
 
 ## 2026-11-03 — Merge Audio Stage 2 into main
 

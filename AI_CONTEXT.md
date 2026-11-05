@@ -21,11 +21,11 @@
 
 - Connected repository path: `abdelhamidzayansocial-wq/ZayanHardwareWebsite`.
 - Current feature branch: `feat/unified-composer-and-technician-preferences`.
-- Branch base: `main` at `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`; last reviewed implementation commit at this handoff: `0d1c791fe2b621c44834c55047a986ec98d2c976` (subsequent commits update handoff documentation).
-- This branch is unmerged and undeployed. The many commits are incremental GitHub file updates; use squash merge only after tests and owner approval. No pull request was opened because the live Actions billing budget was not rechecked and a pull request may trigger workflows. Do not merge or deploy this branch.
+- Branch base: `main` at `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`; verified CI head at handoff: `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`.
+- Draft PR #53 is open: https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/pull/53. It is unmerged and undeployed. The branch contains many incremental GitHub file-update commits; use squash merge only after owner approval. Do not merge or deploy this branch.
 - Feature scope: one-page post composer with a single visual writing surface, optional hashtags, content-only technical search, expanded device coverage, private favorite repair-domain preferences, and Settings editing for those preferences.
 - Database additions: forward migrations 021 and 022; both are also appended to `database/fresh_install.sql`. Existing databases must be checked against the exact migration preconditions before either is applied. Never run the fresh-install SQL against an existing database.
-- Verification: PHP lint passed only for isolated copies of SearchController, PageController, and the search view. Other modified PHP files and JavaScript, focused tests, browser/device acceptance, MySQL/MariaDB migration execution, CI, and deployment have not been verified. The current Actions billing budget was not rechecked, so do not trigger workflows until the owner confirms the budget/reset state.
+- Verification on exact PR head `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`: PHP and JavaScript syntax checks, all focused PHP regression/policy tests, database fresh-install/integration matrix on MySQL 8.0 + MariaDB 10.4.32 + 10.11, and Graphify all passed. CI used disposable databases only. Owner local DB, checkout, browser runtime, and deployment were not accessed; do not treat CI as owner-machine acceptance.
 - The owner's local Kali/XAMPP checkout was not accessed or synchronized in this task. The older local-branch details in section 5 are historical and must be reverified before any local command.
 
 ## 2. Mandatory reading order
