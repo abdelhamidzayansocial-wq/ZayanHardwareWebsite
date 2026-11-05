@@ -62,7 +62,7 @@ final class PageController extends Controller
 
         try {
             User::saveTechnicianPreferences((int) $user['id'], $devices, $interests);
-        } catch (\\InvalidArgumentException) {
+        } catch (\InvalidArgumentException) {
             $this->flash('error', 'اختار جهازًا واحدًا على الأقل.');
             return $this->redirect('/settings');
         }
