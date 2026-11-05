@@ -75,7 +75,7 @@ final class User extends Model
         $sql = 'SELECT u.id, u.username, u.display_name, u.role, u.account_status, u.created_at,
                        u.avatar_key, u.avatar_path, u.accept_help_requests,
                        p.device_focus,
-                       (SELECT GROUP_CONCAT(uds.device_type ORDER BY FIELD(uds.device_type, \'iphone\', \'android\') SEPARATOR \',\')
+                       (SELECT GROUP_CONCAT(uds.device_type ORDER BY uds.device_type SEPARATOR \',\')
                         FROM user_device_specializations uds WHERE uds.user_id = u.id) AS device_specializations,
                        p.tech_level, p.board_experience, p.level_verified, p.workshop_name, p.biography
                 FROM users u
@@ -125,186 +125,20 @@ final class User extends Model
 
             $pdo->prepare('DELETE FROM user_device_specializations WHERE user_id = ?')->execute([$userId]);
             $deviceStmt = $pdo->prepare('INSERT INTO user_device_specializations (user_id, device_type) VALUES (?, ?)');
-            foreach ($validDevices as $device) {
-                $deviceStmt->execute([$userId, $device]);
-            }
-
-            $pdo->prepare('DELETE FROM user_skill_domains WHERE user_id = ?')->execute([$userId]);
-            $pdo->prepare(
-                'INSERT INTO user_skill_domains (user_id, skill_domain_id)
-                 SELECT ?, id FROM skill_domains WHERE slug = ? AND is_active = 1'
-            )->execute([$userId, $specialization]);
-            $pdo->prepare(
-                'INSERT IGNORE INTO user_skill_ratings (user_id, skill_domain_id, rating)
-                 SELECT ?, id, 0 FROM skill_domains WHERE slug = ? AND is_active = 1'
-            )->execute([$userId, $specialization]);
-
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
-            throw $e;
-        }
-    }
-
-    /** Save the selected built-in avatar or a validated uploaded avatar path. */
-    public static function saveAvatar(int $userId, string $avatarKey, ?string $avatarPath = null): void
-    {
-        $allowed = ['technician-blue', 'technician-cyan', 'technician-violet', 'technician-green', 'technician-orange', 'technician-red'];
-        if ($avatarPath === null && !in_array($avatarKey, $allowed, true)) {
-            throw new \InvalidArgumentException('Invalid avatar key.');
-        }
-        self::db()->prepare('UPDATE users SET avatar_key = ?, avatar_path = ? WHERE id = ?')
-            ->execute([$avatarKey, $avatarPath, $userId]);
-    }
-
-    public static function setHelpRequestsEnabled(int $userId, bool $enabled): void
-    {
-        self::db()->prepare('UPDATE users SET accept_help_requests = ? WHERE id = ?')
-            ->execute([$enabled ? 1 : 0, $userId]);
-    }
-
-    /** Save optional profile details. */
-    public static function saveOptionalProfile(int $userId, string $workshop, string $biography): void
-    {
-        self::db()->prepare('UPDATE technician_profiles SET workshop_name = ?, biography = ? WHERE user_id = ?')
-            ->execute([$workshop !== '' ? $workshop : null, $biography !== '' ? $biography : null, $userId]);
-    }
-
-    /** Replace a user's optional device specializations. */
-    public static function saveDeviceSpecializations(int $userId, array $devices): void
-    {
-        $pdo = self::db();
-        $pdo->beginTransaction();
-        try {
-            $pdo->prepare('DELETE FROM user_device_specializations WHERE user_id = ?')->execute([$userId]);
-            $stmt = $pdo->prepare('INSERT INTO user_device_specializations (user_id, device_type) VALUES (?, ?)');
+            $devices = $profile['device_focuses'] ?? [];
+            $allowedDevices = ['smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'];
             foreach (array_unique($devices) as $device) {
-                if (in_array($device, ['iphone', 'android'], true)) {
-                    $stmt->execute([$userId, $device]);
-                }
-            }
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
-            throw $e;
-        }
-    }
-
-    /** Save optional workshop and technical skill domains. */
-    public static function saveOptionalSkills(int $userId, array $skills, string $workshop): void
-    {
-        $pdo = self::db();
-        $pdo->beginTransaction();
-        try {
-            $pdo->prepare('UPDATE technician_profiles SET workshop_name = ? WHERE user_id = ?')
-                ->execute([$workshop !== '' ? $workshop : null, $userId]);
-            $pdo->prepare('DELETE FROM user_skill_domains WHERE user_id = ?')->execute([$userId]);
-            // Ratings are backed by approved assessments. Editing the self-selected
-            // skill list must never erase earned assessment history or reset scores.
-            $domainStmt = $pdo->prepare('INSERT INTO user_skill_domains (user_id, skill_domain_id) SELECT ?, id FROM skill_domains WHERE slug = ? AND is_active = 1');
-            $ratingStmt = $pdo->prepare('INSERT IGNORE INTO user_skill_ratings (user_id, skill_domain_id, rating) SELECT ?, id, 0 FROM skill_domains WHERE slug = ? AND is_active = 1');
-            foreach (array_unique($skills) as $skill) {
-                $domainStmt->execute([$userId, $skill]);
-                $ratingStmt->execute([$userId, $skill]);
-            }
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Mark an account login without allowing a stale in-flight password check
-     * to overwrite a password that an administrator has just reset.
-     */
-    public static function markLoggedIn(
-        int $id,
-        ?string $newHash = null,
-        ?int $expectedAuthVersion = null
-    ): bool {
-        if ($expectedAuthVersion !== null) {
-            if ($newHash !== null) {
-                $stmt = self::db()->prepare(
-                    "UPDATE users
-                     SET last_login_at = UTC_TIMESTAMP(), password_hash = ?
-                     WHERE id = ? AND account_status = 'active' AND auth_version = ?"
-                );
-                $stmt->execute([$newHash, $id, $expectedAuthVersion]);
-            } else {
-                $stmt = self::db()->prepare(
-                    "UPDATE users SET last_login_at = UTC_TIMESTAMP()
-                     WHERE id = ? AND account_status = 'active' AND auth_version = ?"
-                );
-                $stmt->execute([$id, $expectedAuthVersion]);
-            }
-
-            // rowCount() can be zero when last_login_at is unchanged within the
-            // same SQL second. Read the version separately; no stale hash write
-            // can occur because the UPDATE itself includes the version guard.
-            return self::authVersion($id) === $expectedAuthVersion
-                && self::isActive($id);
-        }
-
-        if ($newHash !== null) {
-            self::db()->prepare(
-                "UPDATE users SET last_login_at = UTC_TIMESTAMP(), password_hash = ?
-                 WHERE id = ? AND account_status = 'active'"
-            )->execute([$newHash, $id]);
-        } else {
-            self::db()->prepare(
-                "UPDATE users SET last_login_at = UTC_TIMESTAMP()
-                 WHERE id = ? AND account_status = 'active'"
-            )->execute([$id]);
-        }
-
-        return self::isActive($id);
-    }
-
-    private static function isActive(int $id): bool
-    {
-        $stmt = self::db()->prepare(
-            "SELECT 1 FROM users WHERE id = ? AND account_status = 'active' LIMIT 1"
-        );
-        $stmt->execute([$id]);
-        return $stmt->fetchColumn() !== false;
-    }
-
-    /** Creates the user and technician profile in a single transaction. */
-    public static function create(array $account, array $profile): int
-    {
-        $pdo = self::db();
-        $pdo->beginTransaction();
-        try {
-            $pdo->prepare(
-                'INSERT INTO users (username, display_name, email, phone, password_hash, role, account_status)
-                 VALUES (?, ?, ?, ?, ?, \'member\', \'active\')'
-            )->execute([
-                $account['username'],
-                $account['display_name'],
-                $account['email'] ?? null,
-                $account['phone'] ?? null,
-                $account['password_hash'],
-            ]);
-            $id = (int) $pdo->lastInsertId();
-
-            $pdo->prepare(
-                'INSERT INTO technician_profiles (user_id, device_focus, tech_level, board_experience, level_verified, biography, workshop_name)
-                 VALUES (?, ?, ?, ?, 0, ?, ?)'
-            )->execute([
-                $id,
-                $profile['device_focus'],
-                $profile['tech_level'],
-                $profile['board_experience'] ?? null,
-                $profile['biography'] ?? null,
-                $profile['workshop_name'] ?? null,
-            ]);
-            $deviceStmt = $pdo->prepare('INSERT INTO user_device_specializations (user_id, device_type) VALUES (?, ?)');
-            $devices = $profile['device_focuses'] ?? [$profile['device_focus']];
-            foreach (array_unique($devices) as $device) {
-                if (in_array($device, ['iphone', 'android'], true)) {
+                if (is_string($device) && in_array($device, $allowedDevices, true)) {
                     $deviceStmt->execute([$id, $device]);
                 }
+            }
+
+            $interestStmt = $pdo->prepare(
+                'INSERT IGNORE INTO user_interest_domains (user_id, skill_domain_id)
+                 SELECT ?, id FROM skill_domains WHERE slug = ? AND is_active = 1'
+            );
+            foreach (array_unique($profile['interest_domains'] ?? []) as $interest) {
+                if (is_string($interest)) $interestStmt->execute([$id, $interest]);
             }
 
             $pdo->prepare(
