@@ -5,7 +5,7 @@ $typeLabel = match ($contentType) { 'technical_post', 'discussion' => 'معلو�
 $steps = json_decode((string) ($issue['steps_json'] ?? ''), true);
 $steps = is_array($steps) ? array_values(array_filter($steps, static fn ($step): bool => is_string($step) && trim($step) !== '')) : [];
 $hashtags = json_decode((string) ($issue['tags_json'] ?? ''), true);
-$hashtags = is_array($hashtags) ? array_values(array_filter($hashtags, static fn ($tag): bool => is_string($tag) && preg_match('/^[\\p{L}\\p{N}_]{1,40}$/u', $tag) === 1)) : [];
+$hashtags = is_array($hashtags) ? array_values(array_filter($hashtags, static fn ($tag): bool => is_string($tag) && preg_match('/^[\p{L}\p{N}_]{1,40}$/u', $tag) === 1)) : [];
 $deviceLabel = trim((string) ($issue['manufacturer_name'] ?? '') . ' ' . (string) ($issue['model_code'] ?? $issue['model_commercial_name'] ?? $issue['device_model'] ?? ''));
 $resolved = $issue['status'] === 'resolved';
 $awaitingConfirmation = $issue['status'] === 'awaiting_confirmation';
