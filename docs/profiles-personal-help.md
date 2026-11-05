@@ -12,7 +12,7 @@
 - Registration uses multi-select icon cards for device categories: phones, laptops, desktop computers, screens, drones, PlayStation, Xbox, home electronics, networking equipment, smartwatches, printers and other hardware.
 - The selected device categories are stored in `user_device_specializations` and displayed on the public technician profile as **الأجهزة التي يعمل عليها**.
 - A separate Spotify/Pinterest-style card selection captures favorite repair domains (power, charging, short circuit, display, audio, network, CPU/RAM, storage, board repair, camera, Wi-Fi/Bluetooth and schematics).
-- Favorite repair domains are stored in `user_interest_domains` separately from assessment-backed `user_skill_domains` and `user_skill_ratings`. They are private personalization preferences: do not display them on public profiles, do not return them from search, and do not treat them as verified expertise.
+- Favorite repair domains are stored in `user_interest_domains` separately from assessment-backed `user_skill_domains` and `user_skill_ratings`. They are private personalization preferences: do not display them on public profiles, do not return them from search, and do not treat them as verified expertise. Technicians can update both device coverage and private interests later from Settings.
 - The technical search searches posts and repair knowledge only. It does not return technician profiles as result cards. Device coverage remains profile information, not a person-search result.
 
 ## Personal help requests
