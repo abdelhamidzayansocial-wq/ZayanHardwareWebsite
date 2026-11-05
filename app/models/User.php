@@ -75,7 +75,7 @@ final class User extends Model
         $sql = 'SELECT u.id, u.username, u.display_name, u.role, u.account_status, u.created_at,
                        u.avatar_key, u.avatar_path, u.accept_help_requests,
                        p.device_focus,
-                       (SELECT GROUP_CONCAT(uds.device_type ORDER BY FIELD(uds.device_type, \'iphone\', \'android\') SEPARATOR \',\')
+                       (SELECT GROUP_CONCAT(uds.device_type ORDER BY uds.device_type SEPARATOR \',\')
                         FROM user_device_specializations uds WHERE uds.user_id = u.id) AS device_specializations,
                        p.tech_level, p.board_experience, p.level_verified, p.workshop_name, p.biography
                 FROM users u
