@@ -70,8 +70,8 @@ final class Issue extends Model
         $normalizedTags = [];
         foreach (array_slice($tags, 0, 5) as $rawTag) {
             if (!is_string($rawTag)) continue;
-            $tag = trim(preg_replace('/\\s+/u', '_', ltrim($rawTag, '#')) ?? '');
-            if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\\p{L}\\p{N}_]+$/u', $tag) === 1
+            $tag = trim(preg_replace('/\s+/u', '_', ltrim($rawTag, '#')) ?? '');
+            if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\p{L}\p{N}_]+$/u', $tag) === 1
                 && !in_array($tag, $normalizedTags, true)) {
                 $normalizedTags[] = $tag;
             }
