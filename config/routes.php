@@ -121,7 +121,7 @@ return static function (Router $router): void {
     $router->getPublic('/help-library/{id}', [HelpRequestController::class, 'publicPost']);
 
     // Navigation targets that are not built yet.
-    foreach (['/search', '/market'] as $path) {
+    foreach (['/market'] as $path) {
         $router->get($path, [PageController::class, 'soon']);
     }
 };
