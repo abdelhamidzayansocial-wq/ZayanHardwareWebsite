@@ -21,7 +21,7 @@ use App\Controllers\WorkbenchController;
 use App\Controllers\MyPostsController;
 use App\Controllers\PageController;
 use App\Controllers\ProfileController;
-use App\Controllers\SkillTestController;
+use App\Controllers\SkillTestController;\nuse App\Controllers\SearchController;
 use App\Core\Router;
 
 return static function (Router $router): void {
