@@ -205,3 +205,62 @@
 @media (max-width: 640px) {
   .post-composer__text-mode { padding-bottom: 0; }
 }
+
+
+/* Unified writing surface and optional hashtag chips */
+.post-composer__document {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(.9rem, 2.5vw, 1.25rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+.post-composer__document .post-composer__title-field,
+.post-composer__document .post-composer__section,
+.post-composer__document .post-composer__attachments { min-width: 0; }
+.post-composer__document .post-composer__title {
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid var(--color-border);
+    background: transparent;
+    padding-inline: 0;
+    box-shadow: none;
+}
+.post-composer__document .post-composer__details-field {
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+.post-composer__document .post-composer__details-editor,
+.post-composer__document .post-composer__details {
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+    padding-inline: 0;
+    box-shadow: none;
+}
+.post-composer__document .post-composer__attachments {
+    border-top: 1px solid var(--color-border);
+    padding-top: .9rem;
+}
+.post-composer__hashtags { display: grid; gap: .6rem; }
+.post-composer__tag-entry { display: grid; gap: .55rem; }
+.post-composer__tag-entry input { min-height: 2.8rem; }
+.post-composer__tag-list { display: flex; flex-wrap: wrap; gap: .45rem; }
+.post-composer__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 2rem;
+    padding: .25rem .65rem;
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: var(--text-xs);
+    direction: ltr;
+}
+.post-composer__tag button { color: var(--color-primary); font-size: 1rem; line-height: 1; }
+.post-composer__tag button:hover { color: var(--color-danger); }
