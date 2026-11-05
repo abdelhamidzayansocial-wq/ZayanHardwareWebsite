@@ -229,6 +229,9 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
 
         </div>
 
+        <section class="post-composer__steps" hidden aria-hidden="true">
+            <div class="post-composer__step-list" data-step-list></div>
+        </section>
         <div class="post-composer__footer">
             <a class="btn btn--secondary" href="<?= $e($baseUrl) ?>/feed">إلغاء</a>
             <button class="btn btn--primary" type="submit" data-publish-button>نشر المنشور</button>
