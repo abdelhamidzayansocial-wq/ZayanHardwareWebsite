@@ -2,12 +2,12 @@
 
 - Created `feat/unified-composer-and-technician-preferences` from the current `main`; work is not merged or deployed.
 - Composer: title, body, hashtags, and attachments now share one visual writing surface on a single page. Content type remains a compact card choice above it. Device/model/category inputs are hidden and no longer required for publishing; existing model metadata is retained when resuming older drafts.
-- Hashtags: up to five Arabic/English alphanumeric tags can be added as removable chips, are saved in local/server drafts, persisted as structured JSON on the issue, and displayed on the published issue. Search indexing/filtering for this metadata is a follow-up; do not claim it is already wired into search.
+- Hashtags: up to five Arabic/English alphanumeric tags can be added as removable chips, are saved in local/server drafts, persisted as structured JSON on the issue, and displayed on the published issue. Search: added a content-only `/search` route. It searches titles, descriptions, device/model names and codes, hashtags, replies, diagnostic updates, and approved repair outcomes. It returns technical posts only, never technician-profile results.
 - Technician onboarding: replaced the old iPhone/Android-only device selection with icon cards for phones, laptops, desktop computers, screens, drones, PlayStation, Xbox, home electronics, networking devices, smartwatches, printers, and other devices. Added a separate multi-select for favorite repair domains.
 - Privacy boundary: device categories are shown on the technician's public profile; favorite repair domains are stored separately in `user_interest_domains` and are not selected for public profile/search display or skill-rating evidence.
 - Database: added forward-only migrations 021 (issue hashtags) and 022 (expanded device categories/private interests), and included both in `database/fresh_install.sql`. Never run the fresh-install file against an existing database.
 - Verification: GitHub source edits only. PHP/JS syntax checks, registration browser flow, draft recovery, publish round-trip, SQL migration execution, MySQL/MariaDB compatibility, and CI have not been run. No live database, local checkout, or deployment was accessed.
-- Remaining before merge: validate JS/PHP syntax; confirm schema nullability for optional manufacturer/model references; run migrations on disposable MySQL 8/MariaDB targets; add focused tests; wire tags into the search query/index; add profile settings editing for device/interest selections; review mobile/desktop UI.
+- Remaining before merge: validate JS/PHP syntax; confirm schema nullability for optional manufacturer/model references; run migrations on disposable MySQL 8/MariaDB targets; add focused tests; add profile settings editing for device/interest selections; review mobile/desktop UI and search query behavior.
 
 ## 2026-11-03 — Merge Audio Stage 2 into main
 
