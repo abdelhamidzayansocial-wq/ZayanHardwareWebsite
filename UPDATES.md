@@ -6,7 +6,7 @@
 - Technician onboarding: replaced the old iPhone/Android-only device selection with icon cards for phones, laptops, desktop computers, screens, drones, PlayStation, Xbox, home electronics, networking devices, smartwatches, printers, and other devices. Added a separate multi-select for favorite repair domains, editable later from Settings.
 - Privacy boundary: device categories are shown on the technician's public profile; favorite repair domains are stored separately in `user_interest_domains` and are not selected for public profile/search display or skill-rating evidence.
 - Database: added forward-only migrations 021 (issue hashtags) and 022 (expanded device categories/private interests), and included both in `database/fresh_install.sql`. Never run the fresh-install file against an existing database.
-- Verification: GitHub source edits only. PHP/JS syntax checks, registration browser flow, draft recovery, publish round-trip, SQL migration execution, MySQL/MariaDB compatibility, and CI have not been run. No live database, local checkout, or deployment was accessed.
+- Verification: PHP lint passed for isolated copies of the new SearchController, PageController, and search view. Other modified PHP files and JavaScript have not been linted; focused tests, registration/browser flow, draft recovery, publish round-trip, SQL migration execution, MySQL/MariaDB compatibility, and CI have not been run. No live database, owner checkout, or deployment was accessed.
 - Remaining before merge: validate JS/PHP syntax; confirm schema nullability for optional manufacturer/model references; run migrations on disposable MySQL 8/MariaDB targets; add focused tests; review mobile/desktop UI and search query behavior.
 
 ## 2026-11-03 — Merge Audio Stage 2 into main
