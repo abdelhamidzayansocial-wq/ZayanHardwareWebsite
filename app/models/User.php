@@ -113,7 +113,7 @@ final class User extends Model
 
             $validDevices = array_values(array_unique(array_filter(
                 $devices,
-                static fn ($device): bool => is_string($device) && in_array($device, ['iphone', 'android'], true)
+                static fn ($device): bool => is_string($device) && in_array($device, ['smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'], true)
             )));
             $deviceFocus = $validDevices[0] ?? null;
             $validExperience = in_array($experience, ['lt1', '1-3', '3-5', '5-10', 'gt10'], true)
