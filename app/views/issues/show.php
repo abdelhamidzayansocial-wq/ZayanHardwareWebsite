@@ -4,6 +4,8 @@ $isHelpRequest = $contentType === 'help_request';
 $typeLabel = match ($contentType) { 'technical_post', 'discussion' => 'معلومة فنية', default => 'طلب مساعدة' };
 $steps = json_decode((string) ($issue['steps_json'] ?? ''), true);
 $steps = is_array($steps) ? array_values(array_filter($steps, static fn ($step): bool => is_string($step) && trim($step) !== '')) : [];
+$hashtags = json_decode((string) ($issue['tags_json'] ?? ''), true);
+$hashtags = is_array($hashtags) ? array_values(array_filter($hashtags, static fn ($tag): bool => is_string($tag) && preg_match('/^[\\p{L}\\p{N}_]{1,40}$/u', $tag) === 1)) : [];
 $deviceLabel = trim((string) ($issue['manufacturer_name'] ?? '') . ' ' . (string) ($issue['model_code'] ?? $issue['model_commercial_name'] ?? $issue['device_model'] ?? ''));
 $resolved = $issue['status'] === 'resolved';
 $awaitingConfirmation = $issue['status'] === 'awaiting_confirmation';
@@ -46,6 +48,7 @@ foreach ($replies as $reply) {
             <span class="tag"><?= $e($typeLabel) ?></span>
             <?php if ($deviceLabel !== '') : ?><span class="tag tech"><?= $e($deviceLabel) ?></span><?php endif; ?>
             <?php if ($isHelpRequest && !empty($issue['category'])) : ?><span class="tag"><?= $e($specializations[$issue['category']] ?? $issue['category']) ?></span><?php endif; ?>
+            <?php foreach ($hashtags as $hashtag) : ?><span class="tag tech">#<?= $e($hashtag) ?></span><?php endforeach; ?>
         </div>
         <h1 class="issue-title" dir="auto"><?= $e($issue['title']) ?></h1>
         <?php if (($issue['details_mode'] ?? 'text') === 'audio' && !empty($issue['audio_path'])) : ?>
