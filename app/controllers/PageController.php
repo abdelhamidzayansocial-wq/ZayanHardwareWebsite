@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Response;
 use App\Services\AuthService;
+use App\Services\RateLimiter;
 use App\Models\User;
 use App\Core\Csrf;
 
