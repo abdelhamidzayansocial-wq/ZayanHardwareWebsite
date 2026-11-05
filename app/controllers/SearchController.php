@@ -34,7 +34,7 @@ final class SearchController extends Controller
             $item['device_label'] = trim((string) ($item['manufacturer_name'] ?? '') . ' '
                 . (string) ($item['model_commercial_name'] ?? $item['device_model'] ?? ''));
             $item['excerpt'] = mb_strimwidth(trim(strip_tags((string) ($item['description'] ?? ''))), 0, 220, '…', 'UTF-8');
-            $item['type_label'] = ($item['content_type'] ?? '') === 'help_request' ? 'طلب مساعدة' : 'معلومة فنية';
+            $item['type_label'] = match ($item['content_type'] ?? '') { 'help_request' => 'طلب مساعدة', 'discussion' => 'نقاش عام', default => 'معلومة فنية' };
         }
         unset($item);
 
