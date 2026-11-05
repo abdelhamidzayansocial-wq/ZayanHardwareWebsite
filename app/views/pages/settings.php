@@ -3,6 +3,30 @@ $currentUser = $currentUser ?? null;
 $username = (string) ($currentUser['username'] ?? '');
 $profileHref = $username !== '' ? $baseUrl . '/profile/' . rawurlencode($username) : $baseUrl . '/feed';
 $avatarSrc = !empty($currentUser['avatar_path']) ? $baseUrl . '/avatar/' . (int) $currentUser['id'] : $baseUrl . '/assets/avatars/' . rawurlencode((string) ($currentUser['avatar_key'] ?? 'technician-blue')) . '.svg';
+$selectedDeviceTypes = $selectedDeviceTypes ?? [];
+$selectedInterestDomains = $selectedInterestDomains ?? [];
+$deviceOptions = [
+    'smartphone' => ['هواتف', '📱', 'موبايلات وأجهزة ذكية'],
+    'laptop' => ['لابتوبات', '💻', 'أجهزة محمولة'],
+    'desktop' => ['كمبيوتر', '🖥️', 'أجهزة مكتبية'],
+    'screens' => ['شاشات', '📺', 'تلفزيونات وشاشات'],
+    'drone' => ['درون', '🚁', 'طائرات بدون طيار'],
+    'playstation' => ['بلايستيشن', '🎮', 'أجهزة PlayStation'],
+    'xbox' => ['Xbox', '🕹️', 'أجهزة Xbox'],
+    'home_appliances' => ['أجهزة منزلية', '🏠', 'إلكترونيات منزلية'],
+    'networking' => ['أجهزة شبكات', '📡', 'راوترات ومعدات شبكات'],
+    'smartwatch' => ['ساعات ذكية', '⌚', 'ساعات وأساور ذكية'],
+    'printers' => ['طابعات', '🖨️', 'طابعات وأجهزة متعددة الوظائف'],
+    'other' => ['أجهزة أخرى', '⚙️', 'أجهزة هاردوير أخرى'],
+];
+$interestOptions = [
+    'power' => ['الباور', '⚡'], 'charging' => ['الشحن', '🔋'],
+    'short_circuit' => ['الشورتات', '🔥'], 'display' => ['الشاشات والإضاءة', '🖥️'],
+    'audio' => ['الصوت', '🔊'], 'network' => ['الشبكات والإشارة', '📶'],
+    'cpu' => ['CPU / RAM', '🧠'], 'storage' => ['التخزين', '💾'],
+    'board_repair' => ['إصلاح البورد واللحام', '🛠️'], 'camera' => ['الكاميرات', '📷'],
+    'wifi_bluetooth' => ['Wi-Fi / Bluetooth', '📡'], 'schematics' => ['المخططات وBoardview', '🗺️'],
+];
 ?>
 <div class="help-page settings-page">
     <section class="help-hero" aria-labelledby="settings-title">
@@ -23,6 +47,47 @@ $avatarSrc = !empty($currentUser['avatar_path']) ? $baseUrl . '/avatar/' . (int)
                 <svg class="icon settings-row__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </a>
         </div>
+    </section>
+
+    <section class="help-section" aria-labelledby="settings-tech-preferences-title">
+        <div class="help-section__head">
+            <div>
+                <h2 class="help-section__title" id="settings-tech-preferences-title">أجهزتي واهتماماتي الفنية</h2>
+                <p class="help-section__intro">حدّث الأجهزة التي تعمل عليها، واختر الأعطال والمجالات التي تحب متابعتها.</p>
+            </div>
+        </div>
+        <form class="card settings-preferences" method="post" action="<?= $e($baseUrl) ?>/settings/technician-preferences">
+            <?= $csrf() ?>
+            <fieldset class="field wizard-choice">
+                <legend class="field__label">الأجهزة التي تعمل عليها</legend>
+                <p class="field__hint">هذه الأجهزة تظهر في ملفك الشخصي. اختر جهازًا واحدًا على الأقل.</p>
+                <div class="wizard-choice__grid wizard-choice__grid--devices">
+                    <?php foreach ($deviceOptions as $value => [$label, $icon, $description]) : ?>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="<?= $e($value) ?>" <?= in_array($value, $selectedDeviceTypes, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true"><?= $e($icon) ?></span>
+                            <strong><?= $e($label) ?></strong>
+                            <span><?= $e($description) ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </fieldset>
+
+            <fieldset class="field wizard-choice">
+                <legend class="field__label">المجالات والأعطال التي تفضلها</legend>
+                <p class="field__hint">هذه اختيارات خاصة لتخصيص تجربتك، ولا تظهر في ملفك العام أو نتائج البحث ولا تُعتبر إثبات خبرة.</p>
+                <div class="wizard-choice__grid wizard-choice__grid--interests">
+                    <?php foreach ($interestOptions as $value => [$label, $icon]) : ?>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="<?= $e($value) ?>" <?= in_array($value, $selectedInterestDomains, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true"><?= $e($icon) ?></span>
+                            <strong><?= $e($label) ?></strong>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </fieldset>
+            <button class="btn btn--primary btn--block" type="submit">حفظ الأجهزة والاهتمامات</button>
+        </form>
     </section>
 
     <section class="help-section" aria-labelledby="settings-avatar-title">
