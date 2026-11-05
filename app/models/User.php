@@ -163,6 +163,68 @@ final class User extends Model
             ->execute([$enabled ? 1 : 0, $userId]);
     }
 
+    /** Current public device coverage for a technician. */
+    public static function deviceSpecializations(int $userId): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT device_type FROM user_device_specializations WHERE user_id = ? ORDER BY device_type'
+        );
+        $stmt->execute([$userId]);
+        return array_column($stmt->fetchAll(), 'device_type');
+    }
+
+    /** Private favorite repair domains; never expose these through public profile queries. */
+    public static function interestDomains(int $userId): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT d.slug
+             FROM user_interest_domains i
+             JOIN skill_domains d ON d.id = i.skill_domain_id
+             WHERE i.user_id = ?
+             ORDER BY d.sort_order, d.name_ar'
+        );
+        $stmt->execute([$userId]);
+        return array_column($stmt->fetchAll(), 'slug');
+    }
+
+    /** Update public device coverage and private interest preferences without touching skill ratings. */
+    public static function saveTechnicianPreferences(int $userId, array $devices, array $interests): void
+    {
+        $allowedDevices = ['smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'];
+        $allowedInterests = ['power', 'charging', 'short_circuit', 'display', 'audio', 'network', 'cpu', 'storage', 'board_repair', 'camera', 'wifi_bluetooth', 'schematics'];
+        $devices = array_values(array_unique(array_filter(
+            $devices,
+            static fn ($value): bool => is_string($value) && in_array($value, $allowedDevices, true)
+        )));
+        $interests = array_values(array_unique(array_filter(
+            $interests,
+            static fn ($value): bool => is_string($value) && in_array($value, $allowedInterests, true)
+        )));
+        if (!$devices) throw new \\InvalidArgumentException('At least one device category is required.');
+
+        $pdo = self::db();
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare('UPDATE technician_profiles SET device_focus = ? WHERE user_id = ?')
+                ->execute([$devices[0], $userId]);
+            $pdo->prepare('DELETE FROM user_device_specializations WHERE user_id = ?')->execute([$userId]);
+            $deviceStmt = $pdo->prepare('INSERT INTO user_device_specializations (user_id, device_type) VALUES (?, ?)');
+            foreach ($devices as $device) $deviceStmt->execute([$userId, $device]);
+
+            $pdo->prepare('DELETE FROM user_interest_domains WHERE user_id = ?')->execute([$userId]);
+            $interestStmt = $pdo->prepare(
+                'INSERT IGNORE INTO user_interest_domains (user_id, skill_domain_id)
+                 SELECT ?, id FROM skill_domains WHERE slug = ? AND is_active = 1'
+            );
+            foreach ($interests as $interest) $interestStmt->execute([$userId, $interest]);
+
+            $pdo->commit();
+        } catch (\\Throwable $error) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $error;
+        }
+    }
+
     /** Save optional profile details. */
     public static function saveOptionalProfile(int $userId, string $workshop, string $biography): void
     {
