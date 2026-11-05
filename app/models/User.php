@@ -200,7 +200,7 @@ final class User extends Model
             $interests,
             static fn ($value): bool => is_string($value) && in_array($value, $allowedInterests, true)
         )));
-        if (!$devices) throw new \\InvalidArgumentException('At least one device category is required.');
+        if (!$devices) throw new \InvalidArgumentException('At least one device category is required.');
 
         $pdo = self::db();
         $pdo->beginTransaction();
@@ -219,7 +219,7 @@ final class User extends Model
             foreach ($interests as $interest) $interestStmt->execute([$userId, $interest]);
 
             $pdo->commit();
-        } catch (\\Throwable $error) {
+        } catch (\Throwable $error) {
             if ($pdo->inTransaction()) $pdo->rollBack();
             throw $error;
         }
