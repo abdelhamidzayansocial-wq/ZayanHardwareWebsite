@@ -31,7 +31,9 @@
             <h2>نتائج البحث</h2>
             <span class="muted"><?= count($results) ?> نتيجة</span>
         </div>
-        <?php if (!$results) : ?>
+        <?php if ($searchRateLimited) : ?>
+            <div class="card empty-state"><p class="empty-state__text">طلبات البحث كثيرة في وقت قصير. انتظر دقيقة ثم حاول مرة أخرى.</p></div>
+        <?php elseif (!$results) : ?>
             <div class="card empty-state"><p class="empty-state__text">مفيش نتائج مطابقة. جرّب كلمة مختلفة أو هاشتاج.</p></div>
         <?php else : ?>
             <div class="technical-search__results">
