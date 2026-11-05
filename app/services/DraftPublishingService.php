@@ -140,7 +140,7 @@ final class DraftPublishingService
                 $type,
                 $title,
                 $deviceLabel,
-                $category !== '' ? $category : null,
+                $category,
                 $mode === 'text' ? $description : '',
                 $manufacturerId !== null ? (int) $manufacturerId : null,
                 $modelId !== null ? (int) $modelId : null,
