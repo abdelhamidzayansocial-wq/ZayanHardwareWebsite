@@ -40,7 +40,34 @@ final class PageController extends Controller
             'title' => 'الإعدادات',
             'active' => 'profile',
             'currentUser' => AuthService::user(),
+            'selectedDeviceTypes' => User::deviceSpecializations((int) AuthService::user()['id']),
+            'selectedInterestDomains' => User::interestDomains((int) AuthService::user()['id']),
         ]);
+    }
+
+    /** Save public device coverage and private favorite repair domains. */
+    public function saveTechnicianPreferences(): Response
+    {
+        $user = AuthService::user();
+        if (!$user) return $this->redirect('/login');
+        if (!Csrf::verify($this->request->input('_token'))) {
+            $this->flash('error', 'انتهت صلاحية الصفحة. أعد المحاولة.');
+            return $this->redirect('/settings');
+        }
+
+        $devices = $this->request->input('device_focus', []);
+        $interests = $this->request->input('interest_domains', []);
+        if (!is_array($devices)) $devices = [];
+        if (!is_array($interests)) $interests = [];
+
+        try {
+            User::saveTechnicianPreferences((int) $user['id'], $devices, $interests);
+        } catch (\\InvalidArgumentException) {
+            $this->flash('error', 'اختار جهازًا واحدًا على الأقل.');
+            return $this->redirect('/settings');
+        }
+        $this->flash('success', 'تم حفظ الأجهزة واهتماماتك الفنية. الاهتمامات تظل خاصة بحسابك.');
+        return $this->redirect('/settings');
     }
 
     /** Persist the member's personal-help availability preference. */
@@ -63,7 +90,6 @@ final class PageController extends Controller
         if (!AuthService::user()) return $this->redirect('/login');
 
         $pages = [
-            '/search'         => ['بحث', 'search'],
             '/market'         => ['السوق', 'market'],
             '/issues/create'  => ['إضافة عطل', 'add'],
             '/notifications'  => ['الإشعارات', 'home'],
