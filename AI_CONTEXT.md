@@ -5,8 +5,8 @@
 ## 1. Project identity and scope
 
 - Product: **Zayan Hardware — عصارة الورش**.
-- Repository: `zayanfordesign/ZayanHardwareWebsite` (canonical GitHub repository confirmed by owner on 2026-11-02).
-- Purpose: an Arabic-first, RTL technical community and knowledge system for mobile-phone hardware repair, board-level diagnosis, measurements, schematics, and repair outcomes.
+- Repository: `abdelhamidzayansocial-wq/ZayanHardwareWebsite` (current repository owner/path returned by the connected GitHub account on 2026-11-05; older `zayanfordesign` / `abdelhamidzayan` links below are historical references and may redirect).
+- Purpose: an Arabic-first, RTL technical community and knowledge system for hardware technicians across phones, laptops, desktop computers, screens, drones, game consoles, networking devices, and other electronics, with board-level diagnosis, measurements, schematics, and repair outcomes.
 - Stack: custom PHP 8.2+ MVC, MySQL/MariaDB, vanilla JavaScript/CSS, responsive web UI, PWA and Web Push.
 - Required architecture: Core → Controllers → Services / Models → Views; route definitions in `config/routes.php`; public document root is `public/`.
 - Explicitly out of scope: CRM/customer management and mobile software-repair features, unless the owner explicitly changes the scope.
@@ -16,6 +16,17 @@
 - Canonical visual guide: [docs/BRAND_IDENTITY.md](docs/BRAND_IDENTITY.md).
 - Primary palette: workshop green `#105023` with cream `#FFFCF3` and ivory `#F8F3E0`; orange `#D75421` is reserved for the strongest CTA.
 - CSS source of truth: `public/css/tokens.css`. Preserve the Arabic-first RTL layout and existing responsive/accessibility behavior when extending the UI.
+
+## Current GitHub work snapshot — 2026-11-05
+
+- Connected repository path: `abdelhamidzayansocial-wq/ZayanHardwareWebsite`.
+- Current feature branch: `feat/unified-composer-and-technician-preferences`.
+- Branch base: `main` at `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`; latest verified feature commit at this handoff: `e2a6c34ed2ad909ba8ef7978ca22bca8d3447f69`.
+- Compare status at this handoff: feature branch is 80 commits ahead and 0 behind `main`; it changes 34 files. The many commits are incremental GitHub file updates; use squash merge only after tests and owner approval. Do not merge or deploy this branch.
+- Feature scope: one-page post composer with a single visual writing surface, optional hashtags, content-only technical search, expanded device coverage, private favorite repair-domain preferences, and Settings editing for those preferences.
+- Database additions: forward migrations 021 and 022; both are also appended to `database/fresh_install.sql`. Existing databases must be checked against the exact migration preconditions before either is applied. Never run the fresh-install SQL against an existing database.
+- Verification: source inspection and GitHub edits only. PHP/JS lint, focused tests, browser/device acceptance, MySQL/MariaDB migration execution, CI, and deployment have not been performed. The current Actions billing budget was not rechecked, so do not trigger workflows until the owner confirms the budget/reset state.
+- The owner's local Kali/XAMPP checkout was not accessed or synchronized in this task. The older local-branch details in section 5 are historical and must be reverified before any local command.
 
 ## 2. Mandatory reading order
 
