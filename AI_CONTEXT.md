@@ -21,11 +21,11 @@
 
 - Connected repository path: `abdelhamidzayansocial-wq/ZayanHardwareWebsite`.
 - Current feature branch: `feat/unified-composer-and-technician-preferences`.
-- Branch base: `main` at `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`; latest verified feature commit at this handoff: `e2a6c34ed2ad909ba8ef7978ca22bca8d3447f69`.
-- Compare status at this handoff: feature branch is 80 commits ahead and 0 behind `main`; it changes 34 files. The many commits are incremental GitHub file updates; use squash merge only after tests and owner approval. Do not merge or deploy this branch.
+- Branch base: `main` at `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`; last reviewed implementation commit at this handoff: `0d1c791fe2b621c44834c55047a986ec98d2c976` (subsequent commits update handoff documentation).
+- This branch is unmerged and undeployed. The many commits are incremental GitHub file updates; use squash merge only after tests and owner approval. No pull request was opened because the live Actions billing budget was not rechecked and a pull request may trigger workflows. Do not merge or deploy this branch.
 - Feature scope: one-page post composer with a single visual writing surface, optional hashtags, content-only technical search, expanded device coverage, private favorite repair-domain preferences, and Settings editing for those preferences.
 - Database additions: forward migrations 021 and 022; both are also appended to `database/fresh_install.sql`. Existing databases must be checked against the exact migration preconditions before either is applied. Never run the fresh-install SQL against an existing database.
-- Verification: source inspection and GitHub edits only. PHP/JS lint, focused tests, browser/device acceptance, MySQL/MariaDB migration execution, CI, and deployment have not been performed. The current Actions billing budget was not rechecked, so do not trigger workflows until the owner confirms the budget/reset state.
+- Verification: PHP lint passed only for isolated copies of SearchController, PageController, and the search view. Other modified PHP files and JavaScript, focused tests, browser/device acceptance, MySQL/MariaDB migration execution, CI, and deployment have not been verified. The current Actions billing budget was not rechecked, so do not trigger workflows until the owner confirms the budget/reset state.
 - The owner's local Kali/XAMPP checkout was not accessed or synchronized in this task. The older local-branch details in section 5 are historical and must be reverified before any local command.
 
 ## 2. Mandatory reading order
