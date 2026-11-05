@@ -30,7 +30,7 @@ $selectedExperience = (string) ($old['board_experience'] ?? '');
 <section class="auth wizard">
     <div class="card auth__card wizard__card">
         <h1 class="auth__title">إنشاء حساب فنّي</h1>
-        <p class="auth__sub">أنشئ حسابك وابدأ مشاركة خبرتك في هاردوير الهواتف.</p>
+        <p class="auth__sub">أنشئ حسابك وابدأ مشاركة خبرتك في صيانة الأجهزة الإلكترونية والهاردوير.</p>
 
         <ol class="wizard__stepper" aria-label="مراحل إنشاء الحساب">
             <li class="wizard__stepper-item is-active" data-stepper="1"><span class="wizard__stepper-circle">1</span><span>الحساب</span></li>
