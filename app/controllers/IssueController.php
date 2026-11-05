@@ -119,13 +119,8 @@ final class IssueController extends Controller
         }
         if (mb_strlen($title) < 5 || mb_strlen($title) > 180
             || mb_strlen($description) < 10 || mb_strlen($description) > 10000
-            || mb_strlen($measurements) > 5000) {
+            || mb_strlen($measurements) > 5000 || mb_strlen($deviceModel) > 120 || mb_strlen($category) > 40) {
             return $this->fail('/issues/create', 'راجع العنوان والوصف والقياسات؛ يوجد حقل خارج الحدود المسموحة.');
-        }
-        if ($type === 'help_request'
-            && ($deviceModel === '' || mb_strlen($deviceModel) > 120 || $category === '' || mb_strlen($category) > 40
-                || mb_strlen($measurements) < 3)) {
-            return $this->fail('/issues/create', 'طلب المساعدة يحتاج موديل الجهاز والتخصص والقياسات أو الاختبارات التي جربتها.');
         }
 
         try {
@@ -144,6 +139,9 @@ final class IssueController extends Controller
             return $this->fail('/issues/create', $message);
         }
 
+        $tags = $this->request->input('tags', []);
+        if (!is_array($tags)) $tags = [];
+
         try {
             $issueId = (new ContentWriteService(Database::connection()))->createIssue(
                 (int) $user['id'],
@@ -153,7 +151,8 @@ final class IssueController extends Controller
                 $type === 'help_request' ? $category : '',
                 $description,
                 $type === 'help_request' ? $measurements : '',
-                $uploads
+                $uploads,
+                $tags
             );
             $this->flash('success', 'تم نشر المنشور وحفظ جميع مرفقاته بنجاح.');
             return $this->redirect('/issues/' . $issueId);

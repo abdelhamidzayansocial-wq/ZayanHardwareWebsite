@@ -1228,3 +1228,62 @@
 @media (max-width: 520px) {
   .settings-logout__button { inline-size: 100%; justify-content: center; }
 }
+
+
+/* Registration preference cards: devices are public profile coverage;
+   favorite repair domains are private personalization signals. */
+.wizard-choice__grid--devices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.wizard-choice__grid--interests { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.wizard-choice__device-card, .wizard-choice__interest-card {
+    position: relative;
+    min-height: 7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: .35rem;
+    padding: .8rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: border-color .16s, background .16s, transform .16s;
+}
+.wizard-choice__device-card:has(input:checked),
+.wizard-choice__interest-card:has(input:checked) {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+}
+.wizard-choice__icon { color: var(--color-primary); font-size: 1.5rem; line-height: 1.2; }
+.wizard-choice__device-card strong, .wizard-choice__interest-card strong { font-size: var(--text-sm); }
+.wizard-choice__device-card > span:last-child { color: var(--color-muted); font-size: var(--text-xs); }
+.wizard-choice__device-card input, .wizard-choice__interest-card input { position: absolute; inset-block-start: .55rem; inset-inline-end: .55rem; accent-color: var(--color-primary); }
+@media (max-width: 640px) {
+    .wizard-choice__grid--devices, .wizard-choice__grid--interests { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wizard-choice__device-card, .wizard-choice__interest-card { min-height: 6rem; padding: .7rem; }
+}
+
+
+/* Technical content search */
+.technical-search { display: grid; gap: 1rem; padding-bottom: 2rem; }
+.technical-search__form { display: grid; gap: .9rem; padding: clamp(1rem, 3vw, 1.4rem); }
+.technical-search__filters { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: .75rem; }
+.technical-search__filters .btn { min-width: 7rem; }
+.technical-search__heading { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; }
+.technical-search__results { display: grid; gap: .75rem; }
+.technical-search__result { display: grid; gap: .65rem; padding: 1rem; }
+.technical-search__meta, .technical-search__tags, .technical-search__foot { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.technical-search__result h3 { font-size: var(--text-lg); }
+.technical-search__result h3 a:hover { color: var(--color-primary); }
+.technical-search__solved { color: var(--color-success); }
+.technical-search__foot { justify-content: space-between; color: var(--color-muted); font-size: var(--text-xs); }
+.technical-search__hint { padding: 1.2rem; display: grid; gap: .45rem; }
+@media (max-width: 640px) {
+    .technical-search__filters { grid-template-columns: minmax(0,1fr); }
+    .technical-search__filters .btn { width: 100%; }
+}
+
+
+.settings-preferences { display: grid; gap: 1.2rem; padding: clamp(1rem, 3vw, 1.4rem); }
+.settings-preferences .wizard-choice { min-width: 0; margin: 0; padding: 0; border: 0; }
+.settings-preferences .wizard-choice + .wizard-choice { padding-top: 1rem; border-top: 1px solid var(--color-border); }

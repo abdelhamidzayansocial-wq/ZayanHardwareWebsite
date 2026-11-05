@@ -22,6 +22,7 @@ use App\Controllers\MyPostsController;
 use App\Controllers\PageController;
 use App\Controllers\ProfileController;
 use App\Controllers\SkillTestController;
+use App\Controllers\SearchController;
 use App\Core\Router;
 
 return static function (Router $router): void {
@@ -30,6 +31,8 @@ return static function (Router $router): void {
     $router->getPublic('/policies', [PageController::class, 'policies']);
     $router->get('/settings', [PageController::class, 'settings']);
     $router->post('/settings/help-availability', [PageController::class, 'saveHelpAvailability']);
+    $router->post('/settings/technician-preferences', [PageController::class, 'saveTechnicianPreferences']);
+    $router->get('/search', [SearchController::class, 'index']);
     $router->get('/feed', [FeedController::class, 'index']);
     $router->get('/workbench', [WorkbenchController::class, 'index']);
     $router->get('/my-posts', [MyPostsController::class, 'index']);
@@ -118,7 +121,7 @@ return static function (Router $router): void {
     $router->getPublic('/help-library/{id}', [HelpRequestController::class, 'publicPost']);
 
     // Navigation targets that are not built yet.
-    foreach (['/search', '/market'] as $path) {
+    foreach (['/market'] as $path) {
         $router->get($path, [PageController::class, 'soon']);
     }
 };

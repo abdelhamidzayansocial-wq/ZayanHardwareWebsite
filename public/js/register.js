@@ -488,7 +488,7 @@
 
     const focuses = form.querySelectorAll('input[name="device_focus[]"]:checked');
     if (!focuses.length) {
-      setFieldError('device_focus', 'اختر مجال تخصصك، ويمكنك اختيار المجالين معًا');
+      setFieldError('device_focus', 'اختر جهازًا واحدًا على الأقل');
       form.querySelector('input[name="device_focus[]"]')?.focus();
       return false;
     }

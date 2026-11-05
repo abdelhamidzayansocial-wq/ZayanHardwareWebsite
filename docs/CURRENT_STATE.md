@@ -1,3 +1,15 @@
+## 2026-11-05 — Unified composer, hashtags, technical search, and technician preferences
+
+- Feature branch: `feat/unified-composer-and-technician-preferences`, created from the current `main`. Not merged or deployed.
+- The composer is one page: content-type cards plus one visual writing surface containing title, details, hashtags and attachments. Device/model/category are no longer required. Existing text/audio recorder, media pipeline, drafts and local recovery remain intended to be preserved.
+- Up to five optional Arabic/Latin hashtags are saved in draft payloads and `issues.tags_json`, rendered on issue pages, and searched through the new content-only `/search` route.
+- Search returns technical posts only (not technician profiles) and checks title/body, device/model metadata, hashtags, replies, diagnostic updates and approved repair outcomes.
+- Registration now has icon-card multi-select for device categories and a separate private favorite-repair-domain selection; both can be edited later from Settings. Public profiles show device categories only; favorites are stored separately in `user_interest_domains` and are not public skill ratings.
+- Forward migrations 021 and 022 are included in the branch and appended to the consolidated fresh-install SQL. Existing databases must not run `fresh_install.sql`; review and manually apply the numbered forward migrations only after confirming the exact schema baseline.
+- Verification on exact PR head `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`: PHP and JavaScript syntax checks and all focused PHP regression/policy tests passed. Database fresh-install/integration matrix passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11. Graphify passed. CI used disposable databases only; the owner's database, local checkout, and deployment were not accessed.
+- PR #53 is open as Draft and remains unmerged/undeployed. The duplicate fallback `/search` route registration was removed.
+- Remaining owner acceptance: registration/settings flow, composer/draft recovery, attachments/audio publishing, hashtag display/search, and desktop/mobile UI. CI does not verify browser behavior or the owner's existing database.
+
 ## 2026-11-02 — PR #49 merged: canonical DB defaults and project plan
 
 - PR #49 merged into `main` as `5d1dcf841db9c1a2fd9af2415bb3d3ea98512f36`.
@@ -66,7 +78,7 @@
 
 # Zayan Hardware — Current Project State
 
-> **Last updated:** 2026-11-01. Always recheck live GitHub refs, local checkout, database, and deployment before acting.
+ > **Last updated:** 2026-11-05. Always recheck live GitHub refs, local checkout, database, and deployment before acting.
 
 ## 1. Current goal and delivery plan
 

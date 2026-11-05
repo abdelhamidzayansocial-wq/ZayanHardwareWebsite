@@ -5,8 +5,8 @@
 ## 1. Project identity and scope
 
 - Product: **Zayan Hardware — عصارة الورش**.
-- Repository: `zayanfordesign/ZayanHardwareWebsite` (canonical GitHub repository confirmed by owner on 2026-11-02).
-- Purpose: an Arabic-first, RTL technical community and knowledge system for mobile-phone hardware repair, board-level diagnosis, measurements, schematics, and repair outcomes.
+- Repository: `abdelhamidzayansocial-wq/ZayanHardwareWebsite` (current repository owner/path returned by the connected GitHub account on 2026-11-05; older `zayanfordesign` / `abdelhamidzayan` links below are historical references and may redirect).
+- Purpose: an Arabic-first, RTL technical community and knowledge system for hardware technicians across phones, laptops, desktop computers, screens, drones, game consoles, networking devices, and other electronics, with board-level diagnosis, measurements, schematics, and repair outcomes.
 - Stack: custom PHP 8.2+ MVC, MySQL/MariaDB, vanilla JavaScript/CSS, responsive web UI, PWA and Web Push.
 - Required architecture: Core → Controllers → Services / Models → Views; route definitions in `config/routes.php`; public document root is `public/`.
 - Explicitly out of scope: CRM/customer management and mobile software-repair features, unless the owner explicitly changes the scope.
@@ -16,6 +16,17 @@
 - Canonical visual guide: [docs/BRAND_IDENTITY.md](docs/BRAND_IDENTITY.md).
 - Primary palette: workshop green `#105023` with cream `#FFFCF3` and ivory `#F8F3E0`; orange `#D75421` is reserved for the strongest CTA.
 - CSS source of truth: `public/css/tokens.css`. Preserve the Arabic-first RTL layout and existing responsive/accessibility behavior when extending the UI.
+
+## Current GitHub work snapshot — 2026-11-05
+
+- Connected repository path: `abdelhamidzayansocial-wq/ZayanHardwareWebsite`.
+- Current feature branch: `feat/unified-composer-and-technician-preferences`.
+- Branch base: `main` at `7baee0a19fc2147d8b7a46bc4b4d7717db776e0e`; verified CI head at handoff: `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`.
+- Draft PR #53 is open: https://github.com/abdelhamidzayansocial-wq/ZayanHardwareWebsite/pull/53. It is unmerged and undeployed. The branch contains many incremental GitHub file-update commits; use squash merge only after owner approval. Do not merge or deploy this branch.
+- Feature scope: one-page post composer with a single visual writing surface, optional hashtags, content-only technical search, expanded device coverage, private favorite repair-domain preferences, and Settings editing for those preferences.
+- Database additions: forward migrations 021 and 022; both are also appended to `database/fresh_install.sql`. Existing databases must be checked against the exact migration preconditions before either is applied. Never run the fresh-install SQL against an existing database.
+- Verification on exact PR head `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`: PHP and JavaScript syntax checks, all focused PHP regression/policy tests, database fresh-install/integration matrix on MySQL 8.0 + MariaDB 10.4.32 + 10.11, and Graphify all passed. CI used disposable databases only. Owner local DB, checkout, browser runtime, and deployment were not accessed; do not treat CI as owner-machine acceptance.
+- The owner's local Kali/XAMPP checkout was not accessed or synchronized in this task. The older local-branch details in section 5 are historical and must be reverified before any local command.
 
 ## 2. Mandatory reading order
 

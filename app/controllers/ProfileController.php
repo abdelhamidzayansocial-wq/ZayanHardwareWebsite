@@ -35,10 +35,10 @@ final class ProfileController extends Controller
         $initials = mb_strtoupper(mb_substr($words[0], 0, 1) . (isset($words[1]) ? mb_substr($words[1], 0, 1) : ''));
         $isBoard = ($profile['tech_level'] ?? '') === 'board';
         $deviceTypes = array_filter(explode(',', (string) ($profile['device_specializations'] ?? '')));
-        if (!$deviceTypes && in_array(($profile['device_focus'] ?? ''), ['iphone', 'android'], true)) {
+        if (!$deviceTypes && in_array(($profile['device_focus'] ?? ''), ['iphone', 'android', 'smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'], true)) {
             $deviceTypes = [$profile['device_focus']];
         }
-        $deviceLabels = ['iphone' => 'iPhone', 'android' => 'Android'];
+        $deviceLabels = ['iphone' => 'iPhone', 'android' => 'Android', 'smartphone' => 'هواتف', 'laptop' => 'لابتوبات', 'desktop' => 'كمبيوتر', 'screens' => 'شاشات', 'drone' => 'درون', 'playstation' => 'بلايستيشن', 'xbox' => 'Xbox', 'home_appliances' => 'أجهزة منزلية', 'networking' => 'أجهزة شبكات', 'smartwatch' => 'ساعات ذكية', 'printers' => 'طابعات', 'other' => 'أجهزة أخرى'];
         $deviceLabel = implode(' و ', array_map(static fn (string $type): string => $deviceLabels[$type] ?? '', $deviceTypes));
 
         return $this->view('profile/show', [

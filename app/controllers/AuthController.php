@@ -191,7 +191,7 @@ final class AuthController extends Controller
 
         $old = array_diff_key($this->request->body, ['password' => 1, '_token' => 1]);
         foreach ($old as $key => $value) {
-            if ($key === 'device_focus' && is_array($value)) {
+            if (in_array($key, ['device_focus', 'interest_domains'], true) && is_array($value)) {
                 $old[$key] = array_values(array_filter($value, static fn ($item): bool => is_string($item)));
                 continue;
             }

@@ -1,3 +1,15 @@
+## 2026-11-05 — Unified composer, hashtags, and technician preferences (feature branch)
+
+- Created `feat/unified-composer-and-technician-preferences` from the current `main`; work is not merged or deployed.
+- Composer: title, body, hashtags, and attachments now share one visual writing surface on a single page. Content type remains a compact card choice above it. Device/model/category inputs are hidden and no longer required for publishing; existing model metadata is retained when resuming older drafts.
+- Hashtags: up to five Arabic/English alphanumeric tags can be added as removable chips, are saved in local/server drafts, persisted as structured JSON on the issue, and displayed on the published issue. Search: added a content-only `/search` route. It searches titles, descriptions, device/model names and codes, hashtags, replies, diagnostic updates, and approved repair outcomes. It returns technical posts only, never technician-profile results.
+- Technician onboarding: replaced the old iPhone/Android-only device selection with icon cards for phones, laptops, desktop computers, screens, drones, PlayStation, Xbox, home electronics, networking devices, smartwatches, printers, and other devices. Added a separate multi-select for favorite repair domains, editable later from Settings.
+- Privacy boundary: device categories are shown on the technician's public profile; favorite repair domains are stored separately in `user_interest_domains` and are not selected for public profile/search display or skill-rating evidence.
+- Database: added forward-only migrations 021 (issue hashtags) and 022 (expanded device categories/private interests), and included both in `database/fresh_install.sql`. Never run the fresh-install file against an existing database.
+- Verification on exact PR head `2d6ed01cb162b8246b0cce11bc0c556f3b6443d2`: PHP workflow passed (all PHP lint, JS syntax, and focused PHP regression/policy tests); database integration passed on MySQL 8.0, MariaDB 10.4.32, and MariaDB 10.11, including fresh-install, content-write, draft/audio publishing, retention, and backup/restore checks; Graphify passed. CI used disposable databases only. No owner database, local checkout, or deployment was accessed.
+- Route cleanup: removed the duplicate `/search` registration from the fallback `soon` route list; the explicit SearchController route remains.
+- Remaining before merge: owner local browser/mobile acceptance, registration/settings flow, hashtag/search behavior, and real draft recovery/publish round-trip. CI does not replace those runtime checks. PR #53 remains draft and unmerged.
+
 ## 2026-11-03 — Merge Audio Stage 2 into main
 
 - Integrated audio recording, decoded-source trimming to mono 16 kHz PCM16 WAV, private original/rendered media separation, server-side WAV validation, draft persistence/recovery, and publish/rollback changes from PR #48.

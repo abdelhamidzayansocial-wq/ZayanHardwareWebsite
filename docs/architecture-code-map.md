@@ -38,10 +38,12 @@ The repeatable source scanner is maintained in `tools/graphify/graphify.py`. It 
 | Route family | Entry controller | Main downstream dependencies |
 |---|---|---|
 | Home, feed, workbench, my posts | `HomeController`, `FeedController`, `WorkbenchController`, `MyPostsController` | `Issue`, `User`, view templates |
+| Technical search | `SearchController` | `Issue::search()`; searches posts, tags, device/model metadata, replies, diagnostic updates, and approved repair outcomes; never returns technician profiles |
 | Technical issue lifecycle | `IssueController` | `Issue`, `ContentEditorService`, `ContentWriteService`, `RateLimiter`, `NotificationService`, `DraftPublishingService` |
 | Draft composer and media | `DraftController` | `PostDraft`, `RateLimiter`, private file storage |
 | Device catalog and suggestions | `DeviceCatalogController` | `DeviceCatalog`, `RateLimiter`, admin authorization |
 | Login, registration, logout | `AuthController` | `AuthService`, `User`, `PhoneNumber` |
+| Technician preference settings | `PageController::settings`, `saveTechnicianPreferences` | `User::deviceSpecializations`, `interestDomains`, `saveTechnicianPreferences`; private interest domains remain separate from public skill ratings |
 | Profile and avatar | `ProfileController`, `AvatarController` | `User`, `AvatarService`, private file storage |
 | Personal help and public help library | `HelpRequestController` | `HelpRequest`, `HelpRequestMediaService`, `NotificationService`, `RateLimiter` |
 | Notifications and Web Push | `NotificationController`, `PushController` | `Notification`, `PushSubscription`, `NotificationService`, `WebPushService` |
@@ -92,7 +94,8 @@ flowchart TD
     Publish --> IssueFiles[storage/private/issues]
 ```
 
-- The browser composer stores local/offline work and synchronizes server changes with a revision value.
+- The browser composer stores local/offline work and synchronizes server changes with a revision value. The single visual writing card carries title, details, hashtags and attachments; the existing content-type cards remain above it. Device/model/category selection is optional.
+- Up to five validated hashtags are saved in draft payloads and `issues.tags_json`, rendered on issue pages, and included in the content-only technical search.
 - `PostDraft` locks the draft row and checks the expected revision for server-side media mutations.
 - `DraftController` validates ownership, CSRF, type, MIME, size, dimensions, count limits, and revision before accepting media.
 - `DraftPublishingService` transfers draft media into permanent issue storage and creates the corresponding issue/attachment records in a database transaction. Its filesystem rename operations are compensated on failure.
@@ -112,8 +115,26 @@ flowchart TD
 ```
 
 - `AuthService::register()` validates contact, credentials, specialization, and explicit terms acceptance.
-- `User::create()` creates the user, technician profile, device specializations, and accepted-terms record in one transaction.
+- `User::create()` creates the user, technician profile, selected device categories, private favorite repair-domain preferences, and accepted-terms record in one transaction. Public profiles expose device categories only; favorite domains live in `user_interest_domains` and are not public expertise or search results.
 - `AuthService::user()` reloads the account from the database and rejects every non-active status; credential login also rejects non-active accounts.
+
+### Technical search
+
+```mermaid
+flowchart TD
+    SearchPage[GET /search] --> SearchController
+    SearchController --> IssueSearch[Issue::search]
+    IssueSearch --> Posts[(issues)]
+    IssueSearch --> Tags[issues.tags_json]
+    IssueSearch --> Replies[(issue_replies)]
+    IssueSearch --> Diagnostics[(issue_diagnostic_updates)]
+    IssueSearch --> Results[(approved issue_results)]
+    SearchController --> SearchView[search/index.php]
+```
+
+- Search is authenticated and returns technical post cards only; it does not search or list technician profiles.
+- Hashtags are matched from the validated JSON tag array. Search also checks issue title/body, device catalog names/codes, replies, diagnostic updates, and approved repair outcomes.
+- Public device coverage remains a profile attribute. Favorite repair domains are stored separately and are not queried by the public search.
 
 ### Rate limiting and streamed files
 

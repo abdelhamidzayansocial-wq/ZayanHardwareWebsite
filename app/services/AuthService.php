@@ -46,8 +46,14 @@ final class AuthService
         $deviceFocuses = array_values(array_unique(array_filter(array_map(
             static fn ($value): string => is_string($value) ? trim($value) : '',
             $deviceFocusInput
-        ), static fn (string $value): bool => in_array($value, ['iphone', 'android'], true))));
-        $deviceFocus = $deviceFocuses[0] ?? '';
+        ), static fn (string $value): bool => in_array($value, ['smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'], true))));
+        $deviceFocus = $deviceFocuses[0] ?? null;
+        $interestInput = $input['interest_domains'] ?? [];
+        if (!is_array($interestInput)) $interestInput = [$interestInput];
+        $interestDomains = array_values(array_unique(array_filter(array_map(
+            static fn ($value): string => is_string($value) ? trim($value) : '',
+            $interestInput
+        ), static fn (string $value): bool => in_array($value, ['power', 'charging', 'short_circuit', 'display', 'audio', 'network', 'cpu', 'storage', 'board_repair', 'camera', 'wifi_bluetooth', 'schematics'], true))));
         $techLevel = self::str($input, 'tech_level');
         $boardExperience = self::str($input, 'board_experience');
         $biography = trim(self::str($input, 'profile_bio'));
@@ -82,7 +88,7 @@ final class AuthService
             $errors['username'] = 'اسم المستخدم غير متاح';
         }
         if (!$deviceFocuses) {
-            $errors['device_focus'] = 'اختر مجال تخصصك';
+            $errors['device_focus'] = 'اختر جهازًا واحدًا على الأقل';
         }
         if (!in_array($techLevel, ['fast', 'board'], true)) {
             $errors['tech_level'] = 'اختر مستواك الفني';
@@ -108,6 +114,7 @@ final class AuthService
             ], [
                 'device_focus' => $deviceFocus,
                 'device_focuses' => $deviceFocuses,
+                'interest_domains' => $interestDomains,
                 'tech_level' => $techLevel,
                 'board_experience' => $boardExperience !== '' ? $boardExperience : null,
                 'biography' => $biography !== '' ? $biography : null,

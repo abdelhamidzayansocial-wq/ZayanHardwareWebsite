@@ -30,25 +30,41 @@ final class DraftPublishingService
         $mode = (string) ($payload['details_mode'] ?? 'text');
         $title = trim((string) ($payload['title'] ?? ''));
         $description = trim((string) ($payload['description'] ?? ''));
-        $manufacturerId = filter_var($payload['manufacturer_id'] ?? null, FILTER_VALIDATE_INT);
-        $modelId = filter_var($payload['device_model_id'] ?? null, FILTER_VALIDATE_INT);
+        $manufacturerRaw = trim((string) ($payload['manufacturer_id'] ?? ''));
+        $modelRaw = trim((string) ($payload['device_model_id'] ?? ''));
+        $manufacturerId = $manufacturerRaw === '' ? null : filter_var($manufacturerRaw, FILTER_VALIDATE_INT);
+        $modelId = $modelRaw === '' ? null : filter_var($modelRaw, FILTER_VALIDATE_INT);
         $category = trim((string) ($payload['category'] ?? ''));
 
         if (!in_array($type, ['technical_post', 'help_request'], true)
             || !in_array($mode, ['text', 'audio'], true)
             || mb_strlen($title) < 5 || mb_strlen($title) > 180
-            || $manufacturerId === false || $manufacturerId < 1
-            || $modelId === false || $modelId < 1) {
+            || ($manufacturerId !== null && ($manufacturerId === false || $manufacturerId < 1))
+            || ($modelId !== null && ($modelId === false || $modelId < 1))
+            || (($manufacturerId === null) !== ($modelId === null))
+            || mb_strlen($category) > 40) {
             throw new \DomainException('draft_fields_invalid');
         }
+
+        $tags = [];
+        $rawTags = $payload['tags'] ?? [];
+        if (is_array($rawTags)) {
+            foreach (array_slice($rawTags, 0, 5) as $rawTag) {
+                if (!is_string($rawTag)) continue;
+                $tag = trim(preg_replace('/\s+/u', '_', ltrim($rawTag, '#')) ?? '');
+                if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\p{L}\p{N}_]+$/u', $tag) === 1
+                    && !in_array($tag, $tags, true)) {
+                    $tags[] = $tag;
+                }
+            }
+        }
+        $tagsJson = $tags ? json_encode($tags, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) : null;
+
         if ($mode === 'text' && (mb_strlen($description) < 10 || mb_strlen($description) > 10000)) {
             throw new \DomainException('draft_text_invalid');
         }
         if ($mode === 'audio' && $description !== '') {
             throw new \DomainException('draft_mode_conflict');
-        }
-        if ($type === 'help_request' && ($category === '' || mb_strlen($category) > 40)) {
-            throw new \DomainException('draft_help_category_invalid');
         }
 
         $steps = $payload['steps'] ?? [];
@@ -76,17 +92,20 @@ final class DraftPublishingService
                 throw new \DomainException('draft_revision_conflict');
             }
 
-            $manufacturer = $pdo->prepare('SELECT id FROM device_manufacturers WHERE id = ? AND is_active = 1');
-            $manufacturer->execute([(int) $manufacturerId]);
-            if (!$manufacturer->fetchColumn()) throw new \DomainException('device_manufacturer_unavailable');
+            $modelRow = null;
+            if ($manufacturerId !== null && $modelId !== null) {
+                $manufacturer = $pdo->prepare('SELECT id FROM device_manufacturers WHERE id = ? AND is_active = 1');
+                $manufacturer->execute([(int) $manufacturerId]);
+                if (!$manufacturer->fetchColumn()) throw new \DomainException('device_manufacturer_unavailable');
 
-            $model = $pdo->prepare(
-                'SELECT id, commercial_name, model_code FROM device_models
-                 WHERE id = ? AND manufacturer_id = ? AND is_active = 1'
-            );
-            $model->execute([(int) $modelId, (int) $manufacturerId]);
-            $modelRow = $model->fetch();
-            if (!$modelRow) throw new \DomainException('device_model_unavailable');
+                $model = $pdo->prepare(
+                    'SELECT id, commercial_name, model_code FROM device_models
+                     WHERE id = ? AND manufacturer_id = ? AND is_active = 1'
+                );
+                $model->execute([(int) $modelId, (int) $manufacturerId]);
+                $modelRow = $model->fetch();
+                if (!$modelRow) throw new \DomainException('device_model_unavailable');
+            }
 
             $mediaRows = $pdo->prepare(
                 'SELECT id, media_uuid, media_kind, storage_path, rendered_path, mime_type, rendered_mime_type, file_size, editor_state,
@@ -103,8 +122,8 @@ final class DraftPublishingService
                 throw new \DomainException('draft_media_limit');
             }
 
-            $deviceLabel = (string) $modelRow['commercial_name'];
-            if (!empty($modelRow['model_code'])) $deviceLabel .= ' (' . (string) $modelRow['model_code'] . ')';
+            $deviceLabel = $modelRow ? (string) $modelRow['commercial_name'] : '';
+            if ($modelRow && !empty($modelRow['model_code'])) $deviceLabel .= ' (' . (string) $modelRow['model_code'] . ')';
             $deviceLabel = mb_substr($deviceLabel, 0, 120);
             $stepsJson = $normalizedSteps
                 ? json_encode($normalizedSteps, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
@@ -113,20 +132,21 @@ final class DraftPublishingService
             $insertIssue = $pdo->prepare(
                 'INSERT INTO issues
                     (user_id, content_type, title, device_model, category, description, measurements,
-                     manufacturer_id, device_model_id, details_mode, steps_json, status)
-                 VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, \'open\')'
+                     manufacturer_id, device_model_id, details_mode, steps_json, tags_json, status)
+                 VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, \'open\')'
             );
             $insertIssue->execute([
                 $userId,
                 $type,
                 $title,
                 $deviceLabel,
-                $category !== '' ? $category : null,
+                $category,
                 $mode === 'text' ? $description : '',
-                (int) $manufacturerId,
-                (int) $modelId,
+                $manufacturerId !== null ? (int) $manufacturerId : null,
+                $modelId !== null ? (int) $modelId : null,
                 $mode,
                 $stepsJson,
+                $tagsJson,
             ]);
             $issueId = (int) $pdo->lastInsertId();
 

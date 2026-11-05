@@ -48,6 +48,8 @@
     const mediaInput = form.querySelector('[data-media-input]');
     const mediaList = form.querySelector('[data-media-list]');
     const stepList = form.querySelector('[data-step-list]');
+    const tagInput = form.querySelector('[data-tag-input]');
+    const tagList = form.querySelector('[data-tag-list]');
     const publishButton = form.querySelector('[data-publish-button]');
     const modelsUrl = form.dataset.modelsUrl || '';
     const suggestUrl = form.dataset.suggestUrl || '';
@@ -56,6 +58,7 @@
     let revision = Number(revisionInput.value || 0);
     let draftId = draftIdInput.value || '';
     let media = [];
+    let tags = [];
     let audioMeta = null;
     let saveTimer = null;
     let saving = false;
@@ -194,6 +197,46 @@
             .filter(Boolean);
     }
 
+    function normalizeTag(value) {
+        return String(value || '').trim().replace(/^#+/, '').replace(/\s+/gu, '_');
+    }
+
+    function addTag(value) {
+        const tag = normalizeTag(value);
+        if (!tag || !/^[\p{L}\p{N}_]{1,40}$/u.test(tag) || tags.includes(tag) || tags.length >= 5) return false;
+        tags.push(tag);
+        renderTags();
+        markDirty();
+        return true;
+    }
+
+    function renderTags() {
+        if (!tagList) return;
+        tagList.replaceChildren();
+        tags.forEach(function (tag) {
+            const chip = document.createElement('span');
+            chip.className = 'post-composer__tag';
+            const label = document.createElement('span');
+            label.textContent = '#' + tag;
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'tags[]';
+            hidden.value = tag;
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.textContent = '×';
+            remove.setAttribute('aria-label', 'حذف الهاشتاج ' + tag);
+            remove.addEventListener('click', function () {
+                tags = tags.filter(function (item) { return item !== tag; });
+                renderTags();
+                markDirty();
+            });
+            chip.append(label, hidden, remove);
+            tagList.appendChild(chip);
+        });
+        if (tagInput) tagInput.disabled = tags.length >= 5;
+    }
+
     function collectPayload() {
         return {
             content_type: getType(),
@@ -202,6 +245,7 @@
             device_model_id: modelIdInput.value,
             device_model_label: modelQuery.value.trim(),
             category: categoryInput ? categoryInput.value : '',
+            tags: tags.slice(0, 5),
             details_mode: getMode(),
             description: getMode() === 'text' ? (detailsInput.value || '') : '',
             steps: collectSteps(),
@@ -850,6 +894,8 @@
         modelIdInput.value = payload.device_model_id || '';
         modelQuery.value = payload.device_model_label || '';
         if (categoryInput) categoryInput.value = payload.category || '';
+        tags = Array.isArray(payload.tags) ? payload.tags.map(normalizeTag).filter(function (tag, index, all) { return tag && /^[\p{L}\p{N}_]{1,40}$/u.test(tag) && all.indexOf(tag) === index; }).slice(0, 5) : [];
+        renderTags();
         detailsInput.value = payload.description || '';
         if (detailsEditor) detailsEditor.setValue(detailsInput.value);
         stepList.replaceChildren();
@@ -889,7 +935,7 @@
         detailsInput.required = mode === 'text';
         detailsInput.disabled = mode !== 'text';
         categoryWrap.hidden = getType() !== 'help_request';
-        if (categoryInput) categoryInput.required = getType() === 'help_request';
+        if (categoryInput) categoryInput.required = false;
         typeRadios.forEach(function (radio) {
             radio.closest('.post-composer__type')?.classList.toggle('is-selected', radio.checked);
         });
@@ -967,6 +1013,18 @@
     });
 
     titleInput.addEventListener('input', function () { updateTitleCount(); markDirty(); });
+    if (tagInput) {
+        tagInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ',' || event.key === ' ') {
+                event.preventDefault();
+                if (addTag(tagInput.value)) tagInput.value = '';
+                else if (normalizeTag(tagInput.value)) setStatus('الهاشتاج غير صالح أو وصلت للحد الأقصى (5).', 'error');
+            }
+        });
+        tagInput.addEventListener('change', function () {
+            if (addTag(tagInput.value)) tagInput.value = '';
+        });
+    }
     detailsInput.addEventListener('input', markDirty);
     categoryInput?.addEventListener('change', markDirty);
     typeRadios.forEach(function (radio) {
@@ -1083,13 +1141,13 @@
             setStatus('فيه صورة عليها تعديلات غير مكتملة. افتح الصورة واضغط «تم» عشان نعتمد التعديلات قبل النشر.', 'error');
             return;
         }
-        if (!titleInput.value.trim() || !manufacturerSelect.value || !modelIdInput.value) {
-            setStatus('اختار الشركة والموديل واكتب عنوان المنشور.', 'error');
-            return;
+        if (tagInput && tagInput.value.trim()) {
+            addTag(tagInput.value);
+            tagInput.value = '';
         }
-        if (getType() === 'help_request' && !categoryInput.value) {
-            setStatus('اختار التخصص الفني لطلب المساعدة.', 'error');
-            categoryInput.focus();
+        if (!titleInput.value.trim()) {
+            setStatus('اكتب عنوان المشاركة داخل صندوق المحتوى.', 'error');
+            titleInput.focus();
             return;
         }
         publishButton.disabled = true;

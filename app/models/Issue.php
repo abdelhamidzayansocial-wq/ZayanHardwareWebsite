@@ -57,20 +57,41 @@ final class Issue extends Model
     }
 
     /** Create one of the supported post types while keeping existing issue IDs and relations intact. */
-    public static function create(int $userId, string $type, string $title, ?string $deviceModel, ?string $category, string $description, string $measurements): int
-    {
+    public static function create(
+        int $userId,
+        string $type,
+        string $title,
+        ?string $deviceModel,
+        ?string $category,
+        string $description,
+        string $measurements,
+        array $tags = []
+    ): int {
+        $normalizedTags = [];
+        foreach (array_slice($tags, 0, 5) as $rawTag) {
+            if (!is_string($rawTag)) continue;
+            $tag = trim(preg_replace('/\s+/u', '_', ltrim($rawTag, '#')) ?? '');
+            if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\p{L}\p{N}_]+$/u', $tag) === 1
+                && !in_array($tag, $normalizedTags, true)) {
+                $normalizedTags[] = $tag;
+            }
+        }
+        $tagsJson = $normalizedTags
+            ? json_encode($normalizedTags, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
+            : null;
         $stmt = self::db()->prepare(
-            "INSERT INTO issues (user_id, content_type, title, device_model, category, description, measurements, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'open')"
+            "INSERT INTO issues (user_id, content_type, title, device_model, category, description, measurements, tags_json, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open')"
         );
         $stmt->execute([
             $userId,
             $type,
             $title,
-            $deviceModel !== '' ? $deviceModel : null,
-            $category !== '' ? $category : null,
+            $deviceModel ?? '',
+            $category ?? '',
             $description,
             $measurements !== '' ? $measurements : null,
+            $tagsJson,
         ]);
         return (int) self::db()->lastInsertId();
     }
@@ -118,6 +139,56 @@ final class Issue extends Model
     {
         $stmt = self::db()->prepare('SELECT id, file_path FROM issue_attachments WHERE issue_id = ? AND is_inline = 1');
         $stmt->execute([$issueId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Search technical content only. Member profiles are intentionally never
+     * included in search results; device coverage stays profile metadata.
+     */
+    public static function search(string $query, string $type = ''): array
+    {
+        $query = trim($query);
+        if ($query === '' || mb_strlen($query) > 120) return [];
+
+        $like = '%' . $query . '%';
+        $tag = trim(ltrim($query, '#'));
+        $tagLike = '%' . $tag . '%';
+        $where = [
+            'i.deleted_at IS NULL',
+            "(
+                i.title LIKE ? OR i.description LIKE ? OR i.device_model LIKE ? OR i.category LIKE ?
+                OR COALESCE(dm.display_name, '') LIKE ? OR COALESCE(m.commercial_name, '') LIKE ?
+                OR COALESCE(m.model_code, '') LIKE ?
+                OR JSON_SEARCH(i.tags_json, 'one', ?) IS NOT NULL
+                OR EXISTS (SELECT 1 FROM issue_replies r WHERE r.issue_id = i.id AND r.deleted_at IS NULL AND r.body LIKE ?)
+                OR EXISTS (SELECT 1 FROM issue_diagnostic_updates d WHERE d.issue_id = i.id AND d.body LIKE ?)
+                OR EXISTS (SELECT 1 FROM issue_results ir WHERE ir.issue_id = i.id AND ir.review_status = 'approved'
+                    AND (ir.final_cause LIKE ? OR ir.repair_action LIKE ?))
+            )"
+        ];
+        $params = [$like, $like, $like, $like, $like, $like, $like, $tagLike, $like, $like, $like, $like];
+        if (in_array($type, ['help_request', 'technical_post', 'discussion'], true)) {
+            $where[] = 'i.content_type = ?';
+            $params[] = $type;
+        }
+
+        $stmt = self::db()->prepare(
+            'SELECT i.id, i.title, i.content_type, i.device_model, i.category, i.description,
+                    i.tags_json, i.status, i.created_at, u.display_name AS author,
+                    dm.display_name AS manufacturer_name, m.commercial_name AS model_commercial_name,
+                    m.model_code,
+                    (SELECT COUNT(*) FROM issue_replies r WHERE r.issue_id = i.id AND r.deleted_at IS NULL) AS reply_count
+             FROM issues i
+             JOIN users u ON u.id = i.user_id
+             LEFT JOIN device_manufacturers dm ON dm.id = i.manufacturer_id
+             LEFT JOIN device_models m ON m.id = i.device_model_id
+             WHERE ' . implode(' AND ', $where) . '
+             ORDER BY CASE WHEN i.status = \'resolved\' THEN 0 ELSE 1 END,
+                      i.updated_at DESC, i.id DESC
+             LIMIT 50'
+        );
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 

@@ -67,7 +67,7 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
             </label>
         </fieldset>
 
-        <section class="post-composer__section">
+        <section class="post-composer__section" hidden aria-hidden="true">
             <div class="post-composer__section-heading">
                 <h2>الجهاز</h2>
                 <span class="muted">الشركة والموديل</span>
@@ -76,7 +76,7 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
                 <label class="field">
                     <span class="field__label">الشركة المصنعة</span>
                     <div class="post-composer__brand-picker" data-brand-picker>
-                    <input type="hidden" name="manufacturer_id" data-manufacturer required value="<?= $e($selectedManufacturer) ?>">
+                    <input type="hidden" name="manufacturer_id" data-manufacturer value="<?= $e($selectedManufacturer) ?>">
                     <button class="field__input post-composer__brand-trigger" type="button" data-brand-trigger aria-expanded="false">
                         <span class="post-composer__manufacturer-mark" data-manufacturer-mark>؟</span>
                         <span data-manufacturer-name><?= $e((string) (array_values(array_filter($manufacturers ?? [], static fn (array $item): bool => (string) $item['id'] === $selectedManufacturer))[0]['display_name'] ?? 'اختار الشركة')) ?></span>
@@ -104,7 +104,7 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
                     <label class="field__label" for="post-device-model">موديل الجهاز</label>
                     <input id="post-device-model" class="field__input" type="search" autocomplete="off"
                         placeholder="اكتب اسم الجهاز أو رقم الموديل مثل X605"
-                        value="<?= $e($selectedModelLabel) ?>" data-model-query required>
+                        value="<?= $e($selectedModelLabel) ?>" data-model-query>
                     <input type="hidden" name="device_model_id" data-model-id value="<?= $e($selectedModel) ?>">
                     <div class="post-composer__model-results" data-model-results hidden></div>
                     <small class="muted">تقدر تبحث باسم الجهاز التجاري أو برقم الموديل مباشرة.</small>
@@ -122,6 +122,7 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
             </div>
         </section>
 
+        <div class="post-composer__document">
         <label class="field post-composer__title-field">
             <span class="field__label">عنوان المنشور</span>
             <input class="field__input post-composer__title" name="title" minlength="5" maxlength="180" required
@@ -184,24 +185,17 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
             </div>
         </section>
 
-        <section class="post-composer__steps">
+        <section class="post-composer__hashtags" aria-labelledby="post-hashtags-title">
             <div class="post-composer__section-heading">
-                <h2>الخطوات والفحوصات المجربة</h2>
-                <span class="muted">اختياري</span>
+                <h2 id="post-hashtags-title">هاشتاجات</h2>
+                <span class="muted">اختياري · حتى 5</span>
             </div>
-            <div class="post-composer__step-list" data-step-list>
-                <?php foreach ($steps as $index => $step) : ?>
-                    <?php if (!is_string($step)) continue; ?>
-                    <div class="post-composer__step-row" data-step-row>
-                        <span class="post-composer__step-number"><?= (int) $index + 1 ?></span>
-                        <input type="text" maxlength="2000" data-step-input placeholder="اكتب الفحص أو التجربة..." value="<?= $e($step) ?>">
-                        <button type="button" data-remove-step aria-label="حذف الخطوة">×</button>
-                    </div>
-                <?php endforeach; ?>
+            <div class="post-composer__tag-entry">
+                <input class="field__input" type="text" maxlength="42" autocomplete="off" data-tag-input
+                    placeholder="اكتب كلمة واضغط Enter لإضافتها مثل #شورت">
+                <div class="post-composer__tag-list" data-tag-list aria-live="polite"></div>
             </div>
-            <button class="text-action text-action--primary post-composer__add-step" type="button" data-add-step>
-                <span>＋</span> إضافة
-            </button>
+            <small class="muted">الهاشتاجات تساعد في ربط الموضوعات المتشابهة، ولن تظهر كاختيارات إجبارية.</small>
         </section>
 
         <section class="post-composer__attachments">
@@ -233,6 +227,11 @@ $initialJson = json_encode($initialState, JSON_UNESCAPED_UNICODE | JSON_UNESCAPE
             <small class="muted">الصور تظهر كمصغرات، ويمكن فتحها وتعديلها قبل النشر.</small>
         </section>
 
+        </div>
+
+        <section class="post-composer__steps" hidden aria-hidden="true">
+            <div class="post-composer__step-list" data-step-list></div>
+        </section>
         <div class="post-composer__footer">
             <a class="btn btn--secondary" href="<?= $e($baseUrl) ?>/feed">إلغاء</a>
             <button class="btn btn--primary" type="submit" data-publish-button>نشر المنشور</button>

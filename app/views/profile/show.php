@@ -21,7 +21,7 @@
         <section class="profile-details" aria-labelledby="profile-details-title">
             <h2 id="profile-details-title" class="profile-section-title">المعلومات الفنية</h2>
         <dl class="profile__list">
-            <?php if ($profile['device'] !== '') : ?><div><dt>مجال التخصص</dt><dd><?= $e($profile['device']) ?></dd></div><?php endif; ?>
+            <?php if ($profile['device'] !== '') : ?><div><dt>الأجهزة التي يعمل عليها</dt><dd><?= $e($profile['device']) ?></dd></div><?php endif; ?>
             <?php if ($profile['level'] !== '') : ?>
                 <div><dt>المستوى</dt><dd><?= $e($profile['level']) ?><?php if ((int) $profile['level_verified'] === 0) : ?> <span class="profile__unverified">غير مختبر</span><?php endif; ?></dd></div>
             <?php endif; ?>

@@ -18,18 +18,23 @@ if (str_contains($emailLocal, '@')) {
 }
 $selectedFocuses = $old['device_focus'] ?? [];
 if (!is_array($selectedFocuses)) $selectedFocuses = [$selectedFocuses];
-$selectedFocuses = array_values(array_intersect(['iphone', 'android'], array_map('strval', $selectedFocuses)));
+$deviceOptions = ['smartphone', 'laptop', 'desktop', 'screens', 'drone', 'playstation', 'xbox', 'home_appliances', 'networking', 'smartwatch', 'printers', 'other'];
+$selectedFocuses = array_values(array_intersect($deviceOptions, array_map('strval', $selectedFocuses)));
+$selectedInterests = $old['interest_domains'] ?? [];
+if (!is_array($selectedInterests)) $selectedInterests = [$selectedInterests];
+$interestOptions = ['power', 'charging', 'short_circuit', 'display', 'audio', 'network', 'cpu', 'storage', 'board_repair', 'camera', 'wifi_bluetooth', 'schematics'];
+$selectedInterests = array_values(array_intersect($interestOptions, array_map('strval', $selectedInterests)));
 $selectedLevel = (string) ($old['tech_level'] ?? 'fast');
 $selectedExperience = (string) ($old['board_experience'] ?? '');
 ?>
 <section class="auth wizard">
     <div class="card auth__card wizard__card">
         <h1 class="auth__title">إنشاء حساب فنّي</h1>
-        <p class="auth__sub">أنشئ حسابك وابدأ مشاركة خبرتك في هاردوير الهواتف.</p>
+        <p class="auth__sub">أنشئ حسابك وابدأ مشاركة خبرتك في صيانة الأجهزة الإلكترونية والهاردوير.</p>
 
         <ol class="wizard__stepper" aria-label="مراحل إنشاء الحساب">
             <li class="wizard__stepper-item is-active" data-stepper="1"><span class="wizard__stepper-circle">1</span><span>الحساب</span></li>
-            <li class="wizard__stepper-item" data-stepper="2"><span class="wizard__stepper-circle">2</span><span>تخصصك</span></li>
+            <li class="wizard__stepper-item" data-stepper="2"><span class="wizard__stepper-circle">2</span><span>أجهزتك واهتماماتك</span></li>
             <li class="wizard__stepper-item" data-stepper="3"><span class="wizard__stepper-circle">3</span><span>ملفك</span></li>
         </ol>
 
@@ -130,31 +135,154 @@ $selectedExperience = (string) ($old['board_experience'] ?? '');
                 </div>
 
                 <fieldset class="field wizard-choice">
-                    <legend class="field__label">مجال تخصصك</legend>
-                    <p class="field__hint">يمكنك اختيار مجال واحد أو المجالين معًا إذا كنت متخصصًا في الاثنين.</p>
-                    <div class="wizard-choice__grid">
-                        <label class="wizard-choice__card">
-                            <input type="checkbox" name="device_focus[]" value="iphone" data-wizard-required <?= in_array('iphone', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__logo wizard-choice__logo--apple" aria-hidden="true">
-                                <svg viewBox="0 0 24 24"><path d="M16.37 12.2c.02 2.2 1.93 2.93 1.95 2.94-.02.05-.3 1.05-1 2.08-.6.9-1.23 1.8-2.22 1.82-.97.02-1.28-.59-2.39-.59-1.1 0-1.45.57-2.36.61-.95.04-1.67-.98-2.28-1.88-1.25-1.82-2.2-5.15-.92-7.4.64-1.12 1.78-1.83 3.02-1.85.94-.02 1.82.66 2.39.66.56 0 1.62-.82 2.73-.7.46.02 1.76.18 2.6 1.42-.07.04-1.55.9-1.53 2.89ZM14.6 5.9c.5-.6.83-1.44.74-2.27-.72.03-1.59.48-2.1 1.08-.46.53-.86 1.39-.75 2.2.8.06 1.61-.4 2.11-1.01Z"/></svg>
-                            </span>
-                            <strong>iPhone</strong>
-                            <span>أجهزة Apple</span>
+                    <legend class="field__label">الأجهزة اللي بتشتغل عليها</legend>
+                    <p class="field__hint">اختار كل أنواع الأجهزة اللي عندك خبرة في صيانتها.</p>
+                    <div class="wizard-choice__grid wizard-choice__grid--devices">
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="smartphone" data-wizard-required <?= in_array('smartphone', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">📱</span>
+                            <strong>هواتف</strong>
+                            <span>موبايل وأجهزة ذكية</span>
                         </label>
-                        <label class="wizard-choice__card">
-                            <input type="checkbox" name="device_focus[]" value="android" data-wizard-required <?= in_array('android', $selectedFocuses, true) ? 'checked' : '' ?>>
-                            <span class="wizard-choice__logo wizard-choice__logo--android" aria-hidden="true">
-                                <svg viewBox="0 0 24 24"><path d="M6.2 8.1 4.6 5.3a.5.5 0 0 1 .87-.5l1.65 2.85a9.2 9.2 0 0 1 9.76 0l1.65-2.85a.5.5 0 0 1 .87.5L17.8 8.1a8.2 8.2 0 0 1 2.6 6H3.6a8.2 8.2 0 0 1 2.6-6ZM7.1 10.6a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6Zm9.8 0a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6ZM3.6 15.2h16.8v3.1a1.5 1.5 0 0 1-1.5 1.5h-.8v2.1a1.1 1.1 0 0 1-2.2 0v-2.1h-7v2.1a1.1 1.1 0 0 1-2.2 0v-2.1h-.8a1.5 1.5 0 0 1-1.5-1.5v-3.1Z"/></svg>
-                            </span>
-                            <strong>Android</strong>
-                            <span>أجهزة أندرويد</span>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="laptop" data-wizard-required <?= in_array('laptop', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">💻</span>
+                            <strong>لابتوبات</strong>
+                            <span>أجهزة محمولة</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="desktop" data-wizard-required <?= in_array('desktop', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🖥️</span>
+                            <strong>كمبيوتر</strong>
+                            <span>أجهزة مكتبية</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="screens" data-wizard-required <?= in_array('screens', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">📺</span>
+                            <strong>شاشات</strong>
+                            <span>تلفزيونات وشاشات</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="drone" data-wizard-required <?= in_array('drone', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🚁</span>
+                            <strong>درون</strong>
+                            <span>طائرات بدون طيار</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="playstation" data-wizard-required <?= in_array('playstation', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🎮</span>
+                            <strong>بلايستيشن</strong>
+                            <span>أجهزة PlayStation</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="xbox" data-wizard-required <?= in_array('xbox', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🕹️</span>
+                            <strong>Xbox</strong>
+                            <span>أجهزة Xbox</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="home_appliances" data-wizard-required <?= in_array('home_appliances', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🏠</span>
+                            <strong>أجهزة منزلية</strong>
+                            <span>إلكترونيات منزلية</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="networking" data-wizard-required <?= in_array('networking', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">📡</span>
+                            <strong>أجهزة شبكات</strong>
+                            <span>راوترات ومعدات شبكات</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="smartwatch" data-wizard-required <?= in_array('smartwatch', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">⌚</span>
+                            <strong>ساعات ذكية</strong>
+                            <span>ساعات وأساور ذكية</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="printers" data-wizard-required <?= in_array('printers', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">▤</span>
+                            <strong>طابعات</strong>
+                            <span>طابعات وأجهزة متعددة الوظائف</span>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__device-card">
+                            <input type="checkbox" name="device_focus[]" value="other" data-wizard-required <?= in_array('other', $selectedFocuses, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">⚙️</span>
+                            <strong>أجهزة أخرى</strong>
+                            <span>أجهزة هاردوير أخرى</span>
                         </label>
                     </div>
                     <p class="field__error" data-error-for="device_focus" aria-live="polite"><?= $err('device_focus') ?></p>
                 </fieldset>
 
                 <fieldset class="field wizard-choice">
-                    <legend class="field__label">مستواك</legend>
+                    <legend class="field__label">المجالات والأعطال اللي بتحب تشتغل فيها</legend>
+                    <p class="field__hint">اختياراتك دي لتخصيص المحتوى اللي يظهر لك، ومش هتظهر في نتائج البحث أو كدليل خبرة.</p>
+                    <div class="wizard-choice__grid wizard-choice__grid--interests">
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="power" <?= in_array('power', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">⚡</span>
+                            <strong>الباور</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="charging" <?= in_array('charging', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🔋</span>
+                            <strong>الشحن</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="short_circuit" <?= in_array('short_circuit', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🔥</span>
+                            <strong>الشورتات</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="display" <?= in_array('display', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🖥️</span>
+                            <strong>الشاشات والإضاءة</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="audio" <?= in_array('audio', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🔊</span>
+                            <strong>الصوت</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="network" <?= in_array('network', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">📶</span>
+                            <strong>الشبكات والإشارة</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="cpu" <?= in_array('cpu', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🧠</span>
+                            <strong>CPU / RAM</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="storage" <?= in_array('storage', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">💾</span>
+                            <strong>التخزين</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="board_repair" <?= in_array('board_repair', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🛠️</span>
+                            <strong>إصلاح البورد واللحام</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="camera" <?= in_array('camera', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">📷</span>
+                            <strong>الكاميرات</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="wifi_bluetooth" <?= in_array('wifi_bluetooth', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">📡</span>
+                            <strong>Wi-Fi / Bluetooth</strong>
+                        </label>
+                        <label class="wizard-choice__card wizard-choice__interest-card">
+                            <input type="checkbox" name="interest_domains[]" value="schematics" <?= in_array('schematics', $selectedInterests, true) ? 'checked' : '' ?>>
+                            <span class="wizard-choice__icon" aria-hidden="true">🗺️</span>
+                            <strong>المخططات وBoardview</strong>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="field wizard-choice">
+                    <legend class="field__label">مستواك الفني</legend>
                     <div class="wizard-choice__grid">
                         <label class="wizard-choice__card">
                             <input type="radio" name="tech_level" value="fast" data-wizard-required <?= $selectedLevel === 'fast' ? 'checked' : '' ?>>

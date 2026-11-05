@@ -527,6 +527,18 @@ final class DraftController extends Controller
         if (mb_strlen($clean['title']) > 180) $clean['title'] = mb_substr($clean['title'], 0, 180);
         if (mb_strlen($clean['description']) > 10000) $clean['description'] = mb_substr($clean['description'], 0, 10000);
 
+        $rawTags = $payload['tags'] ?? [];
+        if (!is_array($rawTags)) $rawTags = [];
+        $clean['tags'] = [];
+        foreach (array_slice($rawTags, 0, 5) as $rawTag) {
+            if (!is_string($rawTag)) continue;
+            $tag = trim(preg_replace('/\s+/u', '_', ltrim($rawTag, '#')) ?? '');
+            if ($tag !== '' && mb_strlen($tag) <= 40 && preg_match('/^[\p{L}\p{N}_]+$/u', $tag) === 1
+                && !in_array($tag, $clean['tags'], true)) {
+                $clean['tags'][] = $tag;
+            }
+        }
+
         $steps = $payload['steps'] ?? [];
         if (!is_array($steps)) $steps = [];
         $clean['steps'] = [];
