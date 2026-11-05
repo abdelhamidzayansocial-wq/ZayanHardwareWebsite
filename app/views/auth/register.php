@@ -281,6 +281,23 @@ $selectedExperience = (string) ($old['board_experience'] ?? '');
                     </div>
                 </fieldset>
 
+                <fieldset class="field wizard-choice">
+                    <legend class="field__label">مستواك الفني</legend>
+                    <div class="wizard-choice__grid">
+                        <label class="wizard-choice__card">
+                            <input type="radio" name="tech_level" value="fast" data-wizard-required <?= $selectedLevel === 'fast' ? 'checked' : '' ?>>
+                            <strong>فني فاست</strong>
+                            <span>مبتدئ</span>
+                        </label>
+                        <label class="wizard-choice__card">
+                            <input type="radio" name="tech_level" value="board" data-wizard-required <?= $selectedLevel === 'board' ? 'checked' : '' ?>>
+                            <strong>فني بورد</strong>
+                            <span>صيانة على مستوى البوردة</span>
+                        </label>
+                    </div>
+                    <p class="field__error" data-error-for="tech_level" aria-live="polite"><?= $err('tech_level') ?></p>
+                </fieldset>
+
                 <div class="field" data-board-experience <?= $selectedLevel === 'board' ? '' : 'hidden' ?>>
                     <label class="field__label" for="board_experience">سنوات الخبرة</label>
                     <div class="wizard-experience__title"><span class="wizard-badge">غير مختبر</span></div>
