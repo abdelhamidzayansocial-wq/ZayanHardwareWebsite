@@ -43,6 +43,7 @@ The repeatable source scanner is maintained in `tools/graphify/graphify.py`. It 
 | Draft composer and media | `DraftController` | `PostDraft`, `RateLimiter`, private file storage |
 | Device catalog and suggestions | `DeviceCatalogController` | `DeviceCatalog`, `RateLimiter`, admin authorization |
 | Login, registration, logout | `AuthController` | `AuthService`, `User`, `PhoneNumber` |
+| Technician preference settings | `PageController::settings`, `saveTechnicianPreferences` | `User::deviceSpecializations`, `interestDomains`, `saveTechnicianPreferences`; private interest domains remain separate from public skill ratings |
 | Profile and avatar | `ProfileController`, `AvatarController` | `User`, `AvatarService`, private file storage |
 | Personal help and public help library | `HelpRequestController` | `HelpRequest`, `HelpRequestMediaService`, `NotificationService`, `RateLimiter` |
 | Notifications and Web Push | `NotificationController`, `PushController` | `Notification`, `PushSubscription`, `NotificationService`, `WebPushService` |
