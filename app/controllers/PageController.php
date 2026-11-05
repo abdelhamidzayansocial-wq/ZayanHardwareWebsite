@@ -54,6 +54,10 @@ final class PageController extends Controller
             $this->flash('error', 'انتهت صلاحية الصفحة. أعد المحاولة.');
             return $this->redirect('/settings');
         }
+        if (!RateLimiter::allowForUser('settings.technician_preferences', (int) $user['id'], 10, 600, 30)) {
+            $this->flash('error', 'تم تحديث التفضيلات مرات كثيرة في وقت قصير. حاول مرة أخرى لاحقًا.');
+            return $this->redirect('/settings');
+        }
 
         $devices = $this->request->input('device_focus', []);
         $interests = $this->request->input('interest_domains', []);
