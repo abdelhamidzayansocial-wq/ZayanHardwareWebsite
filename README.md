@@ -36,6 +36,13 @@ GitHub Actions is part of the project's quality gate. Keep workflow files and th
    - XAMPP: open `http://localhost/zayan-hardware/public/`
 4. Open `/feed`. Unknown URLs must show the 404 page.
 
+## Product workflow
+
+- **Publishing:** one page with a content-type choice and one unified writing surface for title, details, hashtags, and attachments. Device/model/category selection is not required to publish.
+- **Technical search:** searches posts and repair knowledge (including hashtags and approved repair outcomes); technician accounts are not returned as search results.
+- **Technician profile:** public device coverage is selected from icon cards. Favorite repair domains are separate private preferences that can be changed from Settings and are not treated as verified skills.
+- **Brand system:** use the semantic CSS tokens and palette documented in [Brand identity](docs/BRAND_IDENTITY.md); do not introduce unrelated colors or stock-photo category cards.
+
 ## Logging and diagnostics
 
 Application logs are written outside the public web root under `storage/logs/` as daily JSON Lines files:
