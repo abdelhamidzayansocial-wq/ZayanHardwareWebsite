@@ -198,12 +198,12 @@
     }
 
     function normalizeTag(value) {
-        return String(value || '').trim().replace(/^#+/, '').replace(/\\s+/gu, '_');
+        return String(value || '').trim().replace(/^#+/, '').replace(/\s+/gu, '_');
     }
 
     function addTag(value) {
         const tag = normalizeTag(value);
-        if (!tag || !/^[\\p{L}\\p{N}_]{1,40}$/u.test(tag) || tags.includes(tag) || tags.length >= 5) return false;
+        if (!tag || !/^[\p{L}\p{N}_]{1,40}$/u.test(tag) || tags.includes(tag) || tags.length >= 5) return false;
         tags.push(tag);
         renderTags();
         markDirty();
@@ -890,7 +890,7 @@
         modelIdInput.value = payload.device_model_id || '';
         modelQuery.value = payload.device_model_label || '';
         if (categoryInput) categoryInput.value = payload.category || '';
-        tags = Array.isArray(payload.tags) ? payload.tags.map(normalizeTag).filter(function (tag, index, all) { return tag && /^[\\p{L}\\p{N}_]{1,40}$/u.test(tag) && all.indexOf(tag) === index; }).slice(0, 5) : [];
+        tags = Array.isArray(payload.tags) ? payload.tags.map(normalizeTag).filter(function (tag, index, all) { return tag && /^[\p{L}\p{N}_]{1,40}$/u.test(tag) && all.indexOf(tag) === index; }).slice(0, 5) : [];
         renderTags();
         detailsInput.value = payload.description || '';
         if (detailsEditor) detailsEditor.setValue(detailsInput.value);
