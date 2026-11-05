@@ -1,5 +1,8 @@
 -- Migration 022: expanded technician device coverage and private interests.
--- Additive schema change; existing device selections and skill ratings are preserved.
+-- Preconditions: reviewed schema after 021; technician_profiles.device_focus,
+-- user_device_specializations.device_type and skill_domains exist; the new
+-- user_interest_domains table does not. Existing device selections are preserved.
+-- Impact: widens device identifiers and adds a private preference relation.
 ALTER TABLE technician_profiles
     MODIFY device_focus VARCHAR(40) NULL;
 
@@ -20,3 +23,15 @@ CREATE TABLE user_interest_domains (
     CONSTRAINT fk_user_interest_domain_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_interest_domain_skill FOREIGN KEY (skill_domain_id) REFERENCES skill_domains(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Postcondition: device_type is VARCHAR(40), and user_interest_domains exists.
+SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND ((TABLE_NAME = 'user_device_specializations' AND COLUMN_NAME = 'device_type')
+    OR (TABLE_NAME = 'technician_profiles' AND COLUMN_NAME = 'device_focus'));
+
+SELECT TABLE_NAME
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'user_interest_domains';
